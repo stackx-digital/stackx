@@ -1,36 +1,20 @@
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import { CheckCircle2, Upload, Sparkles, Gauge } from "lucide-react";
+import { useState } from "react";
 
-import { ActionBadge } from "@/Components/ActionBadge";
-import { ScoreMeter } from "@/Components/ScoreMeter";
+import { AdDetailDrawer } from "@/Components/analytics/AdDetailDrawer";
+import { ScoredTable } from "@/Components/analytics/ScoredTable";
+import { SummaryStrip } from "@/Components/analytics/SummaryStrip";
+import { type AdRow, type Summary } from "@/Components/analytics/types";
+import { WinnersLosers } from "@/Components/analytics/WinnersLosers";
 import { Button, buttonVariants } from "@/Components/ui/Button";
 import AppLayout from "@/Layouts/AppLayout";
-import { formatRM } from "@/lib/utils";
 
-interface AdRow {
-    id: number;
-    name: string;
-    account: string | null;
-    spend: number | null;
-    roas: number | null;
-    scores: {
-        hook: number | null;
-        watch: number | null;
-        click: number | null;
-        convert: number | null;
-    } | null;
-    action: string | null;
-    actionReason: string | null;
-}
-
-interface Summary {
-    adCount: number;
-    totalSpend: number;
-    blendedRoas: number | null;
-    totalResults: number | null;
-    scored: number;
-}
-
+/**
+ * P1 Creative Analytics report (M4): account summary, winners/losers, a
+ * sortable scored table, and a per-ad detail drawer. Scores are deterministic
+ * (M3); AI tags/recommendations layer on in M5.
+ */
 export default function AnalyticsIndex({
     ads,
     summary,
@@ -39,6 +23,7 @@ export default function AnalyticsIndex({
     summary: Summary;
 }) {
     const { flash } = usePage().props;
+    const [selectedId, setSelectedId] = useState<number | null>(null);
     const hasData = summary.adCount > 0;
 
     return (
@@ -70,9 +55,7 @@ export default function AnalyticsIndex({
                             Load demo data
                         </Button>
                         {hasData && (
-                            <Button
-                                onClick={() => router.post("/analytics/score")}
-                            >
+                            <Button onClick={() => router.post("/analytics/score")}>
                                 <Gauge className="size-4" />
                                 Recompute scores
                             </Button>
@@ -92,103 +75,17 @@ export default function AnalyticsIndex({
                 ) : (
                     <>
                         <SummaryStrip summary={summary} />
-                        <ScoredTable ads={ads} />
+                        <WinnersLosers ads={ads} onSelect={setSelectedId} />
+                        <ScoredTable ads={ads} onSelect={setSelectedId} />
                     </>
                 )}
             </div>
+
+            <AdDetailDrawer
+                adId={selectedId}
+                onClose={() => setSelectedId(null)}
+            />
         </AppLayout>
-    );
-}
-
-function SummaryStrip({ summary }: { summary: Summary }) {
-    const items = [
-        { label: "Total spend", value: formatRM(summary.totalSpend, { maximumFractionDigits: 0 }) },
-        { label: "Blended ROAS", value: summary.blendedRoas?.toFixed(2) ?? "N/A" },
-        { label: "Sales / results", value: summary.totalResults?.toLocaleString() ?? "N/A" },
-        { label: "Ads scored", value: `${summary.scored}/${summary.adCount}` },
-    ];
-
-    return (
-        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {items.map((it) => (
-                <div
-                    key={it.label}
-                    className="rounded-lg border border-hairline bg-panel p-4"
-                >
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {it.label}
-                    </div>
-                    <div className="tabular mt-1 text-lg font-semibold text-slate-100">
-                        {it.value}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-}
-
-function ScoredTable({ ads }: { ads: AdRow[] }) {
-    return (
-        <div className="overflow-hidden rounded-lg border border-hairline bg-panel">
-            <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                    <thead>
-                        <tr className="border-b border-hairline text-left text-[10px] uppercase tracking-wider text-muted-foreground">
-                            <th className="px-4 py-3 font-medium">Ad</th>
-                            <th className="px-4 py-3 text-right font-medium">Spend</th>
-                            <th className="px-4 py-3 text-right font-medium">ROAS</th>
-                            <th className="w-56 px-4 py-3 font-medium">
-                                Hook · Watch · Click · Convert
-                            </th>
-                            <th className="px-4 py-3 font-medium">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {ads.map((ad) => (
-                            <tr
-                                key={ad.id}
-                                className="border-b border-hairline/50 last:border-0 hover:bg-ink/40"
-                            >
-                                <td className="px-4 py-3">
-                                    <div className="font-medium text-slate-100">
-                                        {ad.name}
-                                    </div>
-                                    <div className="text-[11px] text-muted-foreground">
-                                        {ad.account}
-                                    </div>
-                                </td>
-                                <td className="tabular px-4 py-3 text-right text-slate-200">
-                                    {formatRM(ad.spend, { maximumFractionDigits: 0 })}
-                                </td>
-                                <td className="tabular px-4 py-3 text-right text-slate-200">
-                                    {ad.roas?.toFixed(2) ?? "—"}
-                                </td>
-                                <td className="px-4 py-3">
-                                    {ad.scores ? (
-                                        <ScoreMeter
-                                            size="compact"
-                                            hook={ad.scores.hook}
-                                            watch={ad.scores.watch}
-                                            click={ad.scores.click}
-                                            convert={ad.scores.convert}
-                                        />
-                                    ) : (
-                                        <span className="text-xs text-muted-foreground">
-                                            Not scored yet
-                                        </span>
-                                    )}
-                                </td>
-                                <td className="px-4 py-3">
-                                    <span title={ad.actionReason ?? undefined}>
-                                        <ActionBadge action={ad.action} />
-                                    </span>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
     );
 }
 

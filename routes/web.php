@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\DemoDataController;
 use App\Http\Controllers\ImportController;
@@ -31,6 +32,9 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
 
     // Scoring (M3).
     Route::post('/analytics/score', [ScoreController::class, 'store'])->name('score.recompute');
+
+    // Ad detail for the drawer (M4).
+    Route::get('/analytics/ads/{ad}', [AdController::class, 'show'])->name('ads.show');
 
     // P2–P5 — placeholders until their milestones.
     Route::get('/spy', fn () => Inertia::render('Spy/Index'))->name('spy');
