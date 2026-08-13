@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\DemoDataController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ScoreController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -18,15 +20,17 @@ Route::get('/', function () {
 
 // Authenticated + allowlisted app shell (the 5 pillars).
 Route::middleware(['auth', 'allowlisted'])->group(function () {
-    // P1 — Creative Analytics (data ingest M2, scoring M3, report M4).
-    Route::get('/analytics', fn () => Inertia::render('Analytics/Index'))
-        ->name('analytics');
+    // P1 — Creative Analytics (report M4). Scored ads from M3.
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
     // CSV ingest (M2).
     Route::get('/analytics/import', [ImportController::class, 'show'])->name('import.show');
     Route::post('/analytics/import/preview', [ImportController::class, 'preview'])->name('import.preview');
     Route::post('/analytics/import', [ImportController::class, 'store'])->name('import.store');
     Route::post('/analytics/demo', [DemoDataController::class, 'store'])->name('demo.load');
+
+    // Scoring (M3).
+    Route::post('/analytics/score', [ScoreController::class, 'store'])->name('score.recompute');
 
     // P2–P5 — placeholders until their milestones.
     Route::get('/spy', fn () => Inertia::render('Spy/Index'))->name('spy');
