@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Cockpit theme (§6). Dark-first ink slate. The app forces dark mode (the
+ * <html> tag carries `class="dark"`), so we style the base surfaces directly
+ * rather than exposing a theme toggle.
+ */
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-ink text-slate-200 antialiased;
+    font-family:
+      "Inter",
+      ui-sans-serif,
+      system-ui,
+      sans-serif;
+  }
+
+  /* Numbers/metrics: tabular mono, aligned columns (§6). */
+  .tabular {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* Visible keyboard focus (§6). */
+  :focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px #0e141b,
+      0 0 0 4px #ffb020;
+  }
+}
+
+/* Respect prefers-reduced-motion (§6). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
