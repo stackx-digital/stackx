@@ -22,11 +22,11 @@ background syncs.
 
 | Milestone | Scope | Status |
 |-----------|-------|--------|
-| **M1** | Scaffold + magic-link auth + cockpit shell | ✅ this build |
-| M2 | Ingest + data model (CSV import, migrations, pgvector) | next |
-| M3 | Deterministic scoring engine + score meter | — |
-| M4 | Analytics report (P1 done) | — |
-| M5 | AI tagging + recommendations (via the AI layer) | — |
+| M1 | Scaffold + magic-link auth + cockpit shell | ✅ |
+| M2 | Ingest + data model (CSV import, migrations) | ✅ |
+| M3 | Deterministic scoring engine + score meter | ✅ |
+| M4 | Analytics report (P1 done) | ✅ |
+| **M5** | AI tagging + recommendations (via the AI layer) | ✅ **MVP P1 complete** |
 | M6+ | P2 Brand Spy → P3 Discovery → P4 Creation → P5 Reports | — |
 
 ## Getting started

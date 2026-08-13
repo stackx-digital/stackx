@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from "@inertiajs/react";
-import { CheckCircle2, Upload, Sparkles, Gauge } from "lucide-react";
+import { CheckCircle2, Upload, Sparkles, Gauge, Wand2 } from "lucide-react";
 import { useState } from "react";
 
 import { AdDetailDrawer } from "@/Components/analytics/AdDetailDrawer";
@@ -55,10 +55,19 @@ export default function AnalyticsIndex({
                             Load demo data
                         </Button>
                         {hasData && (
-                            <Button onClick={() => router.post("/analytics/score")}>
-                                <Gauge className="size-4" />
-                                Recompute scores
-                            </Button>
+                            <>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => router.post("/analytics/score")}
+                                >
+                                    <Gauge className="size-4" />
+                                    Recompute scores
+                                </Button>
+                                <Button onClick={() => router.post("/analytics/ai")}>
+                                    <Wand2 className="size-4" />
+                                    Generate AI insights
+                                </Button>
+                            </>
                         )}
                     </div>
                 </div>

@@ -106,8 +106,13 @@ export function ScoredTable({
                                     <div className="font-medium text-slate-100">
                                         {ad.name}
                                     </div>
-                                    <div className="text-[11px] text-muted-foreground">
-                                        {ad.account}
+                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                        <span>{ad.account}</span>
+                                        {ad.tags?.format && (
+                                            <span className="rounded bg-ink/60 px-1 text-[10px] text-neutral">
+                                                {ad.tags.format}
+                                            </span>
+                                        )}
                                     </div>
                                 </td>
                                 <td className="tabular px-4 py-3 text-right text-slate-200">

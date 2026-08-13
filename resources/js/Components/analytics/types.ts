@@ -5,6 +5,15 @@ export interface Scores {
     convert: number | null;
 }
 
+export interface Tags {
+    format: string | null;
+    hookType: string | null;
+    angle: string | null;
+    audience: string | null;
+    inferredBy: string | null;
+    confidence?: number | null;
+}
+
 export interface AdRow {
     id: number;
     name: string;
@@ -19,6 +28,8 @@ export interface AdRow {
     scores: Scores | null;
     action: string | null;
     actionReason: string | null;
+    aiRecommendation: string | null;
+    tags: Tags | null;
 }
 
 export interface Summary {
@@ -44,6 +55,9 @@ export interface AdDetail {
     scores: Scores | null;
     action: string | null;
     actionReason: string | null;
+    aiRecommendation: string | null;
+    aiRecommendationBy: string | null;
+    tags: Tags | null;
     daily: Array<{
         date: string;
         spend: number | null;

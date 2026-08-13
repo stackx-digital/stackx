@@ -17,7 +17,7 @@ class AnalyticsController extends Controller
 {
     public function index(MetricAggregator $aggregator): Response
     {
-        $ads = Ad::with(['score', 'adAccount', 'metrics'])->get();
+        $ads = Ad::with(['score', 'tags', 'adAccount', 'metrics'])->get();
         $aggregates = $aggregator->aggregate($ads);
 
         $rows = $ads->map(function (Ad $ad) use ($aggregates) {
@@ -72,6 +72,14 @@ class AnalyticsController extends Controller
             ] : null,
             'action' => $score?->action,
             'actionReason' => $score?->action_reason,
+            'aiRecommendation' => $score?->ai_recommendation,
+            'tags' => $ad->tags ? [
+                'format' => $ad->tags->format,
+                'hookType' => $ad->tags->hook_type,
+                'angle' => $ad->tags->angle,
+                'audience' => $ad->tags->audience,
+                'inferredBy' => $ad->tags->inferred_by,
+            ] : null,
         ];
     }
 }

@@ -16,6 +16,8 @@ class AdScore extends Model
         'convert',
         'action',
         'action_reason',
+        'ai_recommendation',
+        'ai_recommendation_by',
     ];
 
     protected function casts(): array

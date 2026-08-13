@@ -5,6 +5,7 @@ import { ActionBadge } from "@/Components/ActionBadge";
 import { ScoreMeter } from "@/Components/ScoreMeter";
 import { formatRM } from "@/lib/utils";
 
+import { InferredBadge, InferredTags } from "./InferredTags";
 import { Sparkline } from "./Sparkline";
 import { type AdDetail } from "./types";
 
@@ -79,6 +80,15 @@ export function AdDetailDrawer({
 
                     {detail && (
                         <div className="space-y-6">
+                            {detail.tags && (
+                                <div>
+                                    <SectionLabel>Creative tags</SectionLabel>
+                                    <div className="mt-3">
+                                        <InferredTags tags={detail.tags} />
+                                    </div>
+                                </div>
+                            )}
+
                             {detail.scores && (
                                 <div>
                                     <SectionLabel>Creative scores</SectionLabel>
@@ -91,6 +101,21 @@ export function AdDetailDrawer({
                                             <span className="text-xs text-muted-foreground">
                                                 {detail.actionReason}
                                             </span>
+                                        </div>
+                                    )}
+                                    {detail.aiRecommendation && (
+                                        <div className="mt-3 rounded-md border border-neutral/20 bg-neutral/5 p-3">
+                                            <div className="mb-1 flex items-center gap-2">
+                                                <span className="text-[10px] font-medium uppercase tracking-wider text-neutral">
+                                                    AI recommendation
+                                                </span>
+                                                <InferredBadge
+                                                    by={detail.aiRecommendationBy}
+                                                />
+                                            </div>
+                                            <p className="text-xs text-slate-200">
+                                                {detail.aiRecommendation}
+                                            </p>
                                         </div>
                                     )}
                                 </div>

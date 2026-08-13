@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdController;
+use App\Http\Controllers\AiInsightController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\DemoDataController;
 use App\Http\Controllers\ImportController;
@@ -35,6 +36,9 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
 
     // Ad detail for the drawer (M4).
     Route::get('/analytics/ads/{ad}', [AdController::class, 'show'])->name('ads.show');
+
+    // AI insights: tags + recommendations (M5).
+    Route::post('/analytics/ai', [AiInsightController::class, 'store'])->name('ai.insights');
 
     // P2–P5 — placeholders until their milestones.
     Route::get('/spy', fn () => Inertia::render('Spy/Index'))->name('spy');

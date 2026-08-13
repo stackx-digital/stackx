@@ -16,7 +16,7 @@ class AdController extends Controller
 {
     public function show(Ad $ad, MetricAggregator $aggregator): JsonResponse
     {
-        $ad->load(['score', 'adAccount', 'metrics']);
+        $ad->load(['score', 'tags', 'adAccount', 'metrics']);
         $agg = $aggregator->aggregate([$ad])[$ad->id];
 
         $daily = $ad->metrics
@@ -55,6 +55,16 @@ class AdController extends Controller
             ] : null,
             'action' => $ad->score?->action,
             'actionReason' => $ad->score?->action_reason,
+            'aiRecommendation' => $ad->score?->ai_recommendation,
+            'aiRecommendationBy' => $ad->score?->ai_recommendation_by,
+            'tags' => $ad->tags ? [
+                'format' => $ad->tags->format,
+                'hookType' => $ad->tags->hook_type,
+                'angle' => $ad->tags->angle,
+                'audience' => $ad->tags->audience,
+                'inferredBy' => $ad->tags->inferred_by,
+                'confidence' => $ad->tags->confidence !== null ? (float) $ad->tags->confidence : null,
+            ] : null,
             'daily' => $daily,
         ]);
     }
