@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\Ai\AiManager;
+use App\Support\CurrentOrganization;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -16,6 +17,9 @@ class AppServiceProvider extends ServiceProvider
         // Provider-agnostic AI layer (§5). Resolve via the Ai facade or by
         // type-hinting AiManager; swap providers with AI_PROVIDER in .env.
         $this->app->singleton(AiManager::class, fn ($app) => new AiManager($app));
+
+        // Resolves the current org for app-layer scoping (§4).
+        $this->app->singleton(CurrentOrganization::class);
     }
 
     /**

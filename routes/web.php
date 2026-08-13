@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\DemoDataController;
+use App\Http\Controllers\ImportController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -19,6 +21,12 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
     // P1 — Creative Analytics (data ingest M2, scoring M3, report M4).
     Route::get('/analytics', fn () => Inertia::render('Analytics/Index'))
         ->name('analytics');
+
+    // CSV ingest (M2).
+    Route::get('/analytics/import', [ImportController::class, 'show'])->name('import.show');
+    Route::post('/analytics/import/preview', [ImportController::class, 'preview'])->name('import.preview');
+    Route::post('/analytics/import', [ImportController::class, 'store'])->name('import.store');
+    Route::post('/analytics/demo', [DemoDataController::class, 'store'])->name('demo.load');
 
     // P2–P5 — placeholders until their milestones.
     Route::get('/spy', fn () => Inertia::render('Spy/Index'))->name('spy');

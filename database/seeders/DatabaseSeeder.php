@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // The single STACKx org must exist before anything scopes to it.
+        $this->call(OrganizationSeeder::class);
+
         $emails = collect(config('stackx.allowed_emails'))
             ->map(fn ($e) => Str::lower(trim($e)))
             ->reject(fn ($e) => $e === '' || Str::startsWith($e, '@'))
