@@ -20,6 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'allowlisted' => \App\Http\Middleware\EnsureAllowlisted::class,
         ]);
+
+        // Behind the NAS reverse proxy (TLS terminates there), trust forwarded
+        // headers so Laravel sees https — required for correct URL generation
+        // and secure magic-link cookies.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
