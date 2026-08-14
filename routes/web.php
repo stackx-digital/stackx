@@ -4,6 +4,7 @@ use App\Http\Controllers\AdController;
 use App\Http\Controllers\AiInsightController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\CompetitorController;
+use App\Http\Controllers\CreateController;
 use App\Http\Controllers\DemoCompetitorsController;
 use App\Http\Controllers\DiscoveryController;
 use App\Http\Controllers\DemoDataController;
@@ -54,8 +55,11 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
     Route::get('/discovery', [DiscoveryController::class, 'index'])->name('discovery');
     Route::post('/discovery/embed', [DiscoveryController::class, 'embed'])->name('discovery.embed');
 
-    // P4–P5 — placeholders until their milestones.
-    Route::get('/create', fn () => Inertia::render('Create/Index'))->name('create');
+    // P4 — Ad Creation (AI copy variations).
+    Route::get('/create', [CreateController::class, 'index'])->name('create');
+    Route::post('/create', [CreateController::class, 'store'])->name('create.generate');
+
+    // P5 — placeholder until its milestone.
     Route::get('/reports', fn () => Inertia::render('Reports/Index'))->name('reports');
 });
 
