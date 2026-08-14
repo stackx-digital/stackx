@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // P2 Brand Spy — daily competitor Ad Library sync (no-ops when disabled).
 Schedule::command('spy:sync')->dailyAt('03:00')->withoutOverlapping();
+
+// P3 Ad Discovery — refresh embeddings after the spy sync.
+Schedule::command('discovery:embed')->dailyAt('03:30')->withoutOverlapping();

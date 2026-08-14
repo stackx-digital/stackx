@@ -5,6 +5,7 @@ use App\Http\Controllers\AiInsightController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\CompetitorController;
 use App\Http\Controllers\DemoCompetitorsController;
+use App\Http\Controllers\DiscoveryController;
 use App\Http\Controllers\DemoDataController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ScoreController;
@@ -49,8 +50,11 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
     Route::post('/spy/competitors/{competitor}/sync', [CompetitorController::class, 'sync'])->name('competitors.sync');
     Route::post('/spy/demo', [DemoCompetitorsController::class, 'store'])->name('spy.demo');
 
-    // P3–P5 — placeholders until their milestones.
-    Route::get('/discovery', fn () => Inertia::render('Discovery/Index'))->name('discovery');
+    // P3 — Ad Discovery (pgvector semantic search).
+    Route::get('/discovery', [DiscoveryController::class, 'index'])->name('discovery');
+    Route::post('/discovery/embed', [DiscoveryController::class, 'embed'])->name('discovery.embed');
+
+    // P4–P5 — placeholders until their milestones.
     Route::get('/create', fn () => Inertia::render('Create/Index'))->name('create');
     Route::get('/reports', fn () => Inertia::render('Reports/Index'))->name('reports');
 });
