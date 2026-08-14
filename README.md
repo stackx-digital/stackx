@@ -26,8 +26,11 @@ background syncs.
 | M2 | Ingest + data model (CSV import, migrations) | ✅ |
 | M3 | Deterministic scoring engine + score meter | ✅ |
 | M4 | Analytics report (P1 done) | ✅ |
-| **M5** | AI tagging + recommendations (via the AI layer) | ✅ **MVP P1 complete** |
-| M6+ | P2 Brand Spy → P3 Discovery → P4 Creation → P5 Reports | — |
+| M5 | AI tagging + recommendations (via the AI layer) | ✅ **MVP P1 complete** |
+| P2 | Brand Spy — competitor Ad Library tracking | ✅ |
+| P3 | Ad Discovery — pgvector semantic search | ✅ |
+| P4 | Ad Creation — AI copy variations | ✅ |
+| P5 | Reports — shareable snapshots + weekly Slack | ✅ **all 5 pillars done** |
 
 ## Getting started
 

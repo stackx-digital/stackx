@@ -7,6 +7,8 @@ use App\Http\Controllers\CompetitorController;
 use App\Http\Controllers\CreateController;
 use App\Http\Controllers\DemoCompetitorsController;
 use App\Http\Controllers\DiscoveryController;
+use App\Http\Controllers\PublicReportController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DemoDataController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ScoreController;
@@ -59,9 +61,15 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
     Route::get('/create', [CreateController::class, 'index'])->name('create');
     Route::post('/create', [CreateController::class, 'store'])->name('create.generate');
 
-    // P5 — placeholder until its milestone.
-    Route::get('/reports', fn () => Inertia::render('Reports/Index'))->name('reports');
+    // P5 — Reports (shareable snapshots + Slack summary).
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
+    Route::post('/reports/slack', [ReportController::class, 'slack'])->name('reports.slack');
+    Route::delete('/reports/{report}', [ReportController::class, 'destroy'])->name('reports.destroy');
 });
+
+// Public, read-only shared report (no auth — token is the secret).
+Route::get('/r/{token}', [PublicReportController::class, 'show'])->name('report.public');
 
 // Authenticated but off-allowlist: valid session, no app access.
 Route::get('/not-authorized', fn () => Inertia::render('NotAuthorized'))
