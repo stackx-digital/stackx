@@ -21,6 +21,17 @@ interface AiProvider
      */
     public function structuredJson(string $system, string $user, array $options = []): array;
 
+    /**
+     * Same as structuredJson but with an image for vision analysis (P4 Phase 2
+     * creative tagging). $imageBase64 is raw base64 (no data: prefix).
+     *
+     * @param  array<string, mixed>  $options
+     * @return array<string, mixed>
+     *
+     * @throws \App\Services\Ai\Exceptions\AiException
+     */
+    public function visionJson(string $system, string $user, string $imageBase64, string $mediaType, array $options = []): array;
+
     /** The driver's canonical name (e.g. "anthropic"). */
     public function name(): string;
 

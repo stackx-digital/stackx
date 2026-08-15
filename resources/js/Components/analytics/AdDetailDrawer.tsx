@@ -1,5 +1,6 @@
-import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { router } from "@inertiajs/react";
+import { Sparkles, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { ActionBadge } from "@/Components/ActionBadge";
 import { ScoreMeter } from "@/Components/ScoreMeter";
@@ -80,6 +81,8 @@ export function AdDetailDrawer({
 
                     {detail && (
                         <div className="space-y-6">
+                            <VisionUpload adId={detail.ad.id} />
+
                             {detail.tags && (
                                 <div>
                                     <SectionLabel>Creative tags</SectionLabel>
@@ -172,6 +175,41 @@ export function AdDetailDrawer({
                     )}
                 </div>
             </aside>
+        </div>
+    );
+}
+
+function VisionUpload({ adId }: { adId: number }) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [busy, setBusy] = useState(false);
+
+    const upload = (file: File | null) => {
+        if (!file) return;
+        setBusy(true);
+        router.post(
+            `/analytics/ads/${adId}/vision-tag`,
+            { image: file },
+            { forceFormData: true, onFinish: () => setBusy(false) },
+        );
+    };
+
+    return (
+        <div className="rounded-md border border-dashed border-hairline bg-ink/30 p-3">
+            <button
+                onClick={() => inputRef.current?.click()}
+                disabled={busy}
+                className="inline-flex items-center gap-2 text-xs text-neutral hover:text-slate-200 disabled:opacity-50"
+            >
+                <Sparkles className="size-3.5" />
+                {busy ? "Analysing creative…" : "Vision-tag from creative image"}
+            </button>
+            <input
+                ref={inputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => upload(e.target.files?.[0] ?? null)}
+            />
         </div>
     );
 }

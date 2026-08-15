@@ -16,6 +16,7 @@ use App\Http\Controllers\DemoDataController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\SpyController;
+use App\Http\Controllers\VisionTagController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -46,6 +47,9 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
 
     // Ad detail for the drawer (M4).
     Route::get('/analytics/ads/{ad}', [AdController::class, 'show'])->name('ads.show');
+
+    // Vision tagging from an uploaded creative (P4 Phase 2).
+    Route::post('/analytics/ads/{ad}/vision-tag', [VisionTagController::class, 'store'])->name('ads.vision');
 
     // AI insights: tags + recommendations (M5).
     Route::post('/analytics/ai', [AiInsightController::class, 'store'])->name('ai.insights');
