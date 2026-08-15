@@ -3,6 +3,8 @@
 use App\Http\Controllers\AdController;
 use App\Http\Controllers\AiInsightController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\BoardController;
+use App\Http\Controllers\BoardItemController;
 use App\Http\Controllers\CompetitorController;
 use App\Http\Controllers\CreateController;
 use App\Http\Controllers\DemoCompetitorsController;
@@ -46,6 +48,14 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
 
     // AI insights: tags + recommendations (M5).
     Route::post('/analytics/ai', [AiInsightController::class, 'store'])->name('ai.insights');
+
+    // Creative Library — swipe boards (P6).
+    Route::get('/library', [BoardController::class, 'index'])->name('library');
+    Route::post('/library', [BoardController::class, 'store'])->name('boards.store');
+    Route::get('/library/{board}', [BoardController::class, 'show'])->name('boards.show');
+    Route::delete('/library/{board}', [BoardController::class, 'destroy'])->name('boards.destroy');
+    Route::post('/library/{board}/items', [BoardItemController::class, 'store'])->name('board-items.store');
+    Route::delete('/library/items/{item}', [BoardItemController::class, 'destroy'])->name('board-items.destroy');
 
     // P2 — Brand Spy.
     Route::get('/spy', [SpyController::class, 'index'])->name('spy');

@@ -4,6 +4,7 @@ import {
     Search,
     Sparkles,
     FileText,
+    Library,
     type LucideIcon,
 } from "lucide-react";
 
@@ -36,7 +37,7 @@ export const NAV_ITEMS: NavItem[] = [
         routeName: "spy",
         href: "/spy",
         icon: Eye,
-        status: "soon",
+        status: "live",
     },
     {
         pillar: "P3",
@@ -44,7 +45,7 @@ export const NAV_ITEMS: NavItem[] = [
         routeName: "discovery",
         href: "/discovery",
         icon: Search,
-        status: "soon",
+        status: "live",
     },
     {
         pillar: "P4",
@@ -52,7 +53,7 @@ export const NAV_ITEMS: NavItem[] = [
         routeName: "create",
         href: "/create",
         icon: Sparkles,
-        status: "soon",
+        status: "live",
     },
     {
         pillar: "P5",
@@ -60,6 +61,14 @@ export const NAV_ITEMS: NavItem[] = [
         routeName: "reports",
         href: "/reports",
         icon: FileText,
-        status: "soon",
+        status: "live",
+    },
+    {
+        pillar: "LIB",
+        label: "Creative Library",
+        routeName: "library",
+        href: "/library",
+        icon: Library,
+        status: "live",
     },
 ];
