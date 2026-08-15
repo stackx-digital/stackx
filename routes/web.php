@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdController;
 use App\Http\Controllers\AiInsightController;
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\BoardItemController;
@@ -56,6 +57,11 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
     Route::delete('/library/{board}', [BoardController::class, 'destroy'])->name('boards.destroy');
     Route::post('/library/{board}/items', [BoardItemController::class, 'store'])->name('board-items.store');
     Route::delete('/library/items/{item}', [BoardItemController::class, 'destroy'])->name('board-items.destroy');
+
+    // Performance alerts (fatigue & scaling).
+    Route::get('/alerts', [AlertController::class, 'index'])->name('alerts');
+    Route::post('/alerts/detect', [AlertController::class, 'detect'])->name('alerts.detect');
+    Route::post('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])->name('alerts.resolve');
 
     // P2 — Brand Spy.
     Route::get('/spy', [SpyController::class, 'index'])->name('spy');

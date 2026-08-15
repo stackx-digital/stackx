@@ -5,6 +5,7 @@ import {
     Sparkles,
     FileText,
     Library,
+    Bell,
     type LucideIcon,
 } from "lucide-react";
 
@@ -69,6 +70,14 @@ export const NAV_ITEMS: NavItem[] = [
         routeName: "library",
         href: "/library",
         icon: Library,
+        status: "live",
+    },
+    {
+        pillar: "ALT",
+        label: "Alerts",
+        routeName: "alerts",
+        href: "/alerts",
+        icon: Bell,
         status: "live",
     },
 ];

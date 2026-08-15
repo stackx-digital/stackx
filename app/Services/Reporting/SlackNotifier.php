@@ -37,6 +37,20 @@ class SlackNotifier
         }
     }
 
+    /** Post a plain text message to the webhook. Returns true if sent. */
+    public function sendText(string $text): bool
+    {
+        if (! $this->configured()) {
+            return false;
+        }
+
+        try {
+            return Http::timeout(15)->post(config('services.slack.webhook'), ['text' => $text])->successful();
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
     /** @param array<string, mixed> $payload */
     private function summaryText(array $payload, string $title, ?string $url): string
     {
