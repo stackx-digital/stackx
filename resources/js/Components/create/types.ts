@@ -26,3 +26,22 @@ export interface HistoryItem {
     createdBy: string | null;
     createdAt: string | null;
 }
+
+export interface Brief {
+    objective: string | null;
+    target_audience: string | null;
+    big_idea: string | null;
+    angle: string | null;
+    hooks: string[];
+    visual_direction: string | null;
+    copy_points: string[];
+    cta: string | null;
+}
+
+export interface BriefItem {
+    id: number;
+    product: string;
+    output: Brief;
+    generatedBy: string | null;
+    createdAt: string | null;
+}

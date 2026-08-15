@@ -67,9 +67,10 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
     Route::get('/discovery', [DiscoveryController::class, 'index'])->name('discovery');
     Route::post('/discovery/embed', [DiscoveryController::class, 'embed'])->name('discovery.embed');
 
-    // P4 — Ad Creation (AI copy variations).
+    // P4 — Ad Creation (AI copy variations + creative briefs).
     Route::get('/create', [CreateController::class, 'index'])->name('create');
     Route::post('/create', [CreateController::class, 'store'])->name('create.generate');
+    Route::post('/create/brief', [CreateController::class, 'brief'])->name('create.brief');
 
     // P5 — Reports (shareable snapshots + Slack summary).
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');

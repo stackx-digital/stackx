@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Ad;
 use App\Models\AdVariation;
 use App\Models\Competitor;
+use App\Models\CreativeBrief;
 use App\Services\Ai\Exceptions\AiException;
+use App\Services\Creation\BriefGenerator;
 use App\Services\Creation\VariationGenerator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -47,11 +49,39 @@ class CreateController extends Controller
                 'createdAt' => $v->created_at?->diffForHumans(),
             ]);
 
+        $briefs = CreativeBrief::with('creator')->latest()->limit(10)->get()
+            ->map(fn (CreativeBrief $b) => [
+                'id' => $b->id,
+                'product' => $b->product,
+                'output' => $b->output,
+                'generatedBy' => $b->generated_by,
+                'createdAt' => $b->created_at?->diffForHumans(),
+            ]);
+
         return Inertia::render('Create/Index', [
             'winners' => $winners,
             'competitorAds' => $competitorAds,
             'history' => $history,
+            'briefs' => $briefs,
         ]);
+    }
+
+    public function brief(Request $request, BriefGenerator $generator): RedirectResponse
+    {
+        $validated = $request->validate([
+            'product' => ['required', 'string', 'max:500'],
+            'source' => ['nullable', 'in:ad,competitor_ad'],
+            'source_id' => ['nullable', 'integer'],
+        ]);
+
+        try {
+            $generator->generate([...$validated, 'created_by' => $request->user()->id]);
+        } catch (AiException $e) {
+            return redirect()->route('create')->with('status',
+                'AI brief did not run — '.$e->getMessage().' (check AI_PROVIDER and the API key).');
+        }
+
+        return redirect()->route('create')->with('status', 'Creative brief generated.');
     }
 
     public function store(Request $request, VariationGenerator $generator): RedirectResponse

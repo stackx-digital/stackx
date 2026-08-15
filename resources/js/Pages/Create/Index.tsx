@@ -1,9 +1,11 @@
 import { Head, useForm, usePage } from "@inertiajs/react";
-import { CheckCircle2, Sparkles, Wand2 } from "lucide-react";
-import { type FormEventHandler } from "react";
+import { CheckCircle2, FileText, Wand2 } from "lucide-react";
+import { useState, type FormEventHandler } from "react";
 
+import { BriefCard } from "@/Components/create/BriefCard";
 import { VariationCard } from "@/Components/create/VariationCard";
 import {
+    type BriefItem,
     type CompetitorAdOption,
     type HistoryItem,
     type Winner,
@@ -18,34 +20,15 @@ export default function CreateIndex({
     winners,
     competitorAds,
     history,
+    briefs,
 }: {
     winners: Winner[];
     competitorAds: CompetitorAdOption[];
     history: HistoryItem[];
+    briefs: BriefItem[];
 }) {
     const { flash } = usePage().props;
-    const { data, setData, post, processing } = useForm<{
-        product: string;
-        source: "" | "ad" | "competitor_ad";
-        source_id: string;
-        tone: string;
-        count: number;
-    }>({ product: "", source: "", source_id: "", tone: "", count: 5 });
-
-    const mode: SourceMode = data.source === "" ? "freeform" : data.source;
-
-    const setMode = (m: SourceMode) => {
-        setData((d) => ({
-            ...d,
-            source: m === "freeform" ? "" : m,
-            source_id: "",
-        }));
-    };
-
-    const submit: FormEventHandler = (e) => {
-        e.preventDefault();
-        post("/create");
-    };
+    const [tab, setTab] = useState<"copy" | "brief">("copy");
 
     return (
         <AppLayout>
@@ -56,12 +39,11 @@ export default function CreateIndex({
                         P4 · Ad Creation
                     </span>
                     <h1 className="mt-1 font-display text-2xl font-bold text-slate-100">
-                        Generate ad variations
+                        Create from winners
                     </h1>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Turn a winner (yours or a competitor&apos;s) into fresh
-                        copy — BM + English, Malaysian style. All output is
-                        AI-generated.
+                        Generate ad copy or a full creative brief from a winner
+                        (yours or a competitor&apos;s). All output is AI-generated.
                     </p>
                 </div>
 
@@ -72,173 +54,290 @@ export default function CreateIndex({
                     </div>
                 )}
 
-                <form
-                    onSubmit={submit}
-                    className="mb-8 space-y-4 rounded-lg border border-hairline bg-panel p-5"
-                >
-                    <div>
-                        <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-muted-foreground">
-                            Base on
-                        </label>
-                        <div className="flex flex-wrap gap-1">
-                            {(
-                                [
-                                    ["freeform", "Free-form brief"],
-                                    ["ad", "Our winner"],
-                                    ["competitor_ad", "Competitor ad"],
-                                ] as [SourceMode, string][]
-                            ).map(([m, label]) => (
-                                <button
-                                    key={m}
-                                    type="button"
-                                    onClick={() => setMode(m)}
-                                    className={cn(
-                                        "rounded-md border px-3 py-1.5 text-xs transition-colors",
-                                        mode === m
-                                            ? "border-amber/40 bg-amber/10 text-amber"
-                                            : "border-hairline text-muted-foreground hover:text-slate-200",
-                                    )}
-                                >
-                                    {label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                <div className="mb-6 flex gap-1">
+                    {(
+                        [
+                            ["copy", "Ad copy", Wand2],
+                            ["brief", "Creative brief", FileText],
+                        ] as const
+                    ).map(([t, label, Icon]) => (
+                        <button
+                            key={t}
+                            onClick={() => setTab(t)}
+                            className={cn(
+                                "inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm transition-colors",
+                                tab === t
+                                    ? "border-amber/40 bg-amber/10 text-amber"
+                                    : "border-hairline text-muted-foreground hover:text-slate-200",
+                            )}
+                        >
+                            <Icon className="size-4" />
+                            {label}
+                        </button>
+                    ))}
+                </div>
 
-                    {mode === "ad" && (
-                        <SourceSelect
-                            value={data.source_id}
-                            onChange={(v) => setData("source_id", v)}
-                            options={winners.map((w) => ({
-                                id: w.id,
-                                label: `${w.name}${w.action ? ` · ${w.action}` : ""}`,
-                            }))}
-                            placeholder="Select a scored ad"
-                        />
-                    )}
-                    {mode === "competitor_ad" && (
-                        <SourceSelect
-                            value={data.source_id}
-                            onChange={(v) => setData("source_id", v)}
-                            options={competitorAds}
-                            placeholder="Select a competitor ad"
-                        />
-                    )}
-
-                    <div>
-                        <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-muted-foreground">
-                            Product / offer
-                        </label>
-                        <textarea
-                            value={data.product}
-                            onChange={(e) => setData("product", e.target.value)}
-                            required
-                            rows={2}
-                            placeholder="e.g. Baju Raya premium cotton, RM89, free postage this week"
-                            className="w-full rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100"
-                        />
-                    </div>
-
-                    <div className="flex flex-wrap gap-4">
-                        <div className="flex-1">
-                            <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-muted-foreground">
-                                Tone (optional)
-                            </label>
-                            <input
-                                value={data.tone}
-                                onChange={(e) => setData("tone", e.target.value)}
-                                placeholder="urgent, playful, premium…"
-                                className="w-full rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100"
-                            />
-                        </div>
-                        <div className="w-28">
-                            <label className="mb-1.5 block text-[10px] uppercase tracking-wider text-muted-foreground">
-                                Variations
-                            </label>
-                            <input
-                                type="number"
-                                min={1}
-                                max={8}
-                                value={data.count}
-                                onChange={(e) =>
-                                    setData("count", Number(e.target.value))
-                                }
-                                className="w-full rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100"
-                            />
-                        </div>
-                    </div>
-
-                    <Button type="submit" disabled={processing}>
-                        <Wand2 className="size-4" />
-                        {processing ? "Generating…" : "Generate variations"}
-                    </Button>
-                </form>
-
-                {history.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-hairline bg-panel p-10 text-center text-sm text-muted-foreground">
-                        No variations yet — fill the brief above and generate.
-                    </div>
+                {tab === "copy" ? (
+                    <CopyPanel
+                        winners={winners}
+                        competitorAds={competitorAds}
+                        history={history}
+                    />
                 ) : (
-                    <div className="space-y-6">
-                        {history.map((item) => (
-                            <HistoryBlock key={item.id} item={item} />
-                        ))}
-                    </div>
+                    <BriefPanel
+                        winners={winners}
+                        competitorAds={competitorAds}
+                        briefs={briefs}
+                    />
                 )}
             </div>
         </AppLayout>
     );
 }
 
-function SourceSelect({
-    value,
-    onChange,
-    options,
-    placeholder,
+function SourcePicker({
+    mode,
+    setMode,
+    sourceId,
+    setSourceId,
+    winners,
+    competitorAds,
 }: {
-    value: string;
-    onChange: (v: string) => void;
-    options: { id: number; label: string }[];
-    placeholder: string;
+    mode: SourceMode;
+    setMode: (m: SourceMode) => void;
+    sourceId: string;
+    setSourceId: (v: string) => void;
+    winners: Winner[];
+    competitorAds: CompetitorAdOption[];
 }) {
+    const options =
+        mode === "ad"
+            ? winners.map((w) => ({
+                  id: w.id,
+                  label: `${w.name}${w.action ? ` · ${w.action}` : ""}`,
+              }))
+            : mode === "competitor_ad"
+              ? competitorAds
+              : [];
+
     return (
-        <select
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100"
-        >
-            <option value="">{placeholder}</option>
-            {options.map((o) => (
-                <option key={o.id} value={o.id}>
-                    {o.label}
-                </option>
-            ))}
-        </select>
+        <div className="space-y-3">
+            <div className="flex flex-wrap gap-1">
+                {(
+                    [
+                        ["freeform", "Free-form brief"],
+                        ["ad", "Our winner"],
+                        ["competitor_ad", "Competitor ad"],
+                    ] as [SourceMode, string][]
+                ).map(([m, label]) => (
+                    <button
+                        key={m}
+                        type="button"
+                        onClick={() => setMode(m)}
+                        className={cn(
+                            "rounded-md border px-3 py-1.5 text-xs transition-colors",
+                            mode === m
+                                ? "border-amber/40 bg-amber/10 text-amber"
+                                : "border-hairline text-muted-foreground hover:text-slate-200",
+                        )}
+                    >
+                        {label}
+                    </button>
+                ))}
+            </div>
+            {mode !== "freeform" && (
+                <select
+                    value={sourceId}
+                    onChange={(e) => setSourceId(e.target.value)}
+                    className="w-full rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100"
+                >
+                    <option value="">Select…</option>
+                    {options.map((o) => (
+                        <option key={o.id} value={o.id}>
+                            {o.label}
+                        </option>
+                    ))}
+                </select>
+            )}
+        </div>
     );
 }
 
-function HistoryBlock({ item }: { item: HistoryItem }) {
+function CopyPanel({
+    winners,
+    competitorAds,
+    history,
+}: {
+    winners: Winner[];
+    competitorAds: CompetitorAdOption[];
+    history: HistoryItem[];
+}) {
+    const { data, setData, post, processing } = useForm<{
+        product: string;
+        source: "" | "ad" | "competitor_ad";
+        source_id: string;
+        tone: string;
+        count: number;
+    }>({ product: "", source: "", source_id: "", tone: "", count: 5 });
+
+    const mode: SourceMode = data.source === "" ? "freeform" : data.source;
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post("/create");
+    };
+
     return (
-        <div>
-            <div className="mb-3 flex flex-wrap items-center gap-2">
-                <h2 className="font-display text-sm font-semibold text-slate-100">
-                    {item.product}
-                </h2>
-                <span className="inline-flex items-center gap-1 rounded-full border border-neutral/30 bg-neutral/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-neutral">
-                    <Sparkles className="size-2.5" />
-                    AI-generated
-                </span>
-                <span className="text-[11px] text-muted-foreground">
-                    {item.source ? `from ${item.source.replace("_", " ")}` : "free-form"}
-                    {item.createdAt ? ` · ${item.createdAt}` : ""}
-                    {item.generatedBy ? ` · ${item.generatedBy}` : ""}
-                </span>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-                {item.output.map((v, i) => (
-                    <VariationCard key={i} variation={v} />
-                ))}
-            </div>
+        <>
+            <form
+                onSubmit={submit}
+                className="mb-8 space-y-4 rounded-lg border border-hairline bg-panel p-5"
+            >
+                <SourcePicker
+                    mode={mode}
+                    setMode={(m) =>
+                        setData((d) => ({
+                            ...d,
+                            source: m === "freeform" ? "" : m,
+                            source_id: "",
+                        }))
+                    }
+                    sourceId={data.source_id}
+                    setSourceId={(v) => setData("source_id", v)}
+                    winners={winners}
+                    competitorAds={competitorAds}
+                />
+                <textarea
+                    value={data.product}
+                    onChange={(e) => setData("product", e.target.value)}
+                    required
+                    rows={2}
+                    placeholder="Product / offer — e.g. Baju Raya premium cotton, RM89, free postage"
+                    className="w-full rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100"
+                />
+                <div className="flex flex-wrap gap-4">
+                    <div className="flex-1">
+                        <input
+                            value={data.tone}
+                            onChange={(e) => setData("tone", e.target.value)}
+                            placeholder="Tone (optional)"
+                            className="w-full rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100"
+                        />
+                    </div>
+                    <input
+                        type="number"
+                        min={1}
+                        max={8}
+                        value={data.count}
+                        onChange={(e) => setData("count", Number(e.target.value))}
+                        className="w-24 rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100"
+                    />
+                    <Button type="submit" disabled={processing}>
+                        <Wand2 className="size-4" />
+                        {processing ? "Generating…" : "Generate copy"}
+                    </Button>
+                </div>
+            </form>
+
+            {history.length === 0 ? (
+                <Empty text="No copy generated yet." />
+            ) : (
+                <div className="space-y-6">
+                    {history.map((item) => (
+                        <div key={item.id}>
+                            <div className="mb-3 flex flex-wrap items-center gap-2">
+                                <h2 className="font-display text-sm font-semibold text-slate-100">
+                                    {item.product}
+                                </h2>
+                                <span className="text-[11px] text-muted-foreground">
+                                    {item.createdAt}
+                                    {item.generatedBy ? ` · ${item.generatedBy}` : ""}
+                                </span>
+                            </div>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                {item.output.map((v, i) => (
+                                    <VariationCard key={i} variation={v} />
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </>
+    );
+}
+
+function BriefPanel({
+    winners,
+    competitorAds,
+    briefs,
+}: {
+    winners: Winner[];
+    competitorAds: CompetitorAdOption[];
+    briefs: BriefItem[];
+}) {
+    const { data, setData, post, processing } = useForm<{
+        product: string;
+        source: "" | "ad" | "competitor_ad";
+        source_id: string;
+    }>({ product: "", source: "", source_id: "" });
+
+    const mode: SourceMode = data.source === "" ? "freeform" : data.source;
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post("/create/brief");
+    };
+
+    return (
+        <>
+            <form
+                onSubmit={submit}
+                className="mb-8 space-y-4 rounded-lg border border-hairline bg-panel p-5"
+            >
+                <SourcePicker
+                    mode={mode}
+                    setMode={(m) =>
+                        setData((d) => ({
+                            ...d,
+                            source: m === "freeform" ? "" : m,
+                            source_id: "",
+                        }))
+                    }
+                    sourceId={data.source_id}
+                    setSourceId={(v) => setData("source_id", v)}
+                    winners={winners}
+                    competitorAds={competitorAds}
+                />
+                <textarea
+                    value={data.product}
+                    onChange={(e) => setData("product", e.target.value)}
+                    required
+                    rows={2}
+                    placeholder="Product / offer for the brief"
+                    className="w-full rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100"
+                />
+                <Button type="submit" disabled={processing}>
+                    <FileText className="size-4" />
+                    {processing ? "Generating…" : "Generate brief"}
+                </Button>
+            </form>
+
+            {briefs.length === 0 ? (
+                <Empty text="No briefs generated yet." />
+            ) : (
+                <div className="space-y-6">
+                    {briefs.map((item) => (
+                        <BriefCard key={item.id} item={item} />
+                    ))}
+                </div>
+            )}
+        </>
+    );
+}
+
+function Empty({ text }: { text: string }) {
+    return (
+        <div className="rounded-lg border border-dashed border-hairline bg-panel p-10 text-center text-sm text-muted-foreground">
+            {text}
         </div>
     );
 }
