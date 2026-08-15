@@ -5,8 +5,9 @@ import { Sidebar } from "@/Components/shell/Sidebar";
 import { Topbar } from "@/Components/shell/Topbar";
 
 /**
- * Authenticated cockpit shell. Access is gated server-side (auth +
- * allowlisted middleware); this just lays out the sidebar, topbar, and page.
+ * Authenticated cockpit shell. Access is gated server-side (auth + verified
+ * middleware, scoped to the user's org); this just lays out the sidebar,
+ * topbar, and page.
  */
 export default function AppLayout({ children }: PropsWithChildren) {
     const { auth } = usePage().props;

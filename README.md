@@ -1,9 +1,10 @@
 # STACKx Ad Intelligence
 
-Internal creative-analytics + competitor-intelligence cockpit for the STACKx
-team. Skaler-style, but scoped for our own use — no billing, no public signup,
-no multi-tenant SaaS. See [`PROJECT_SPEC.md`](./PROJECT_SPEC.md) for the full
-spec, pillars, scoring model, and milestones.
+Multi-tenant creative-analytics + competitor-intelligence SaaS. Skaler-style:
+teams self-register, and each signup gets its own isolated workspace
+(organization). Free/beta — no billing yet. See
+[`PROJECT_SPEC.md`](./PROJECT_SPEC.md) for the full spec, pillars, scoring
+model, and milestones.
 
 ## Stack
 
@@ -22,7 +23,7 @@ background syncs.
 
 | Milestone | Scope | Status |
 |-----------|-------|--------|
-| M1 | Scaffold + magic-link auth + cockpit shell | ✅ |
+| M1 | Scaffold + auth + cockpit shell | ✅ |
 | M2 | Ingest + data model (CSV import, migrations) | ✅ |
 | M3 | Deterministic scoring engine + score meter | ✅ |
 | M4 | Analytics report (P1 done) | ✅ |
@@ -31,6 +32,7 @@ background syncs.
 | P3 | Ad Discovery — pgvector semantic search | ✅ |
 | P4 | Ad Creation — AI copy variations | ✅ |
 | P5 | Reports — shareable snapshots + weekly Slack | ✅ **all 5 pillars done** |
+| SaaS 1 | Public signup + email verification + per-org tenancy | ✅ |
 
 ## Getting started
 
@@ -43,24 +45,34 @@ php artisan key:generate
 # DB: fill Supabase Postgres creds in .env (or set DB_CONNECTION=sqlite for
 # a zero-setup local run), then:
 php artisan migrate
-php artisan db:seed        # pre-provision allowlisted team members (optional)
 
 # Run (two terminals, or use a process manager):
 php artisan serve          # http://localhost:8000
 npm run dev                # Vite
 ```
 
-### Signing in (passwordless)
+### Signing up & in (SaaS)
 
-1. Go to `/login`, enter a team email.
-2. A magic link is emailed **only** to allowlisted addresses. In local dev
-   `MAIL_MAILER=log` writes the link to `storage/logs/laravel.log` — open it and
-   paste the URL.
-3. The link is one-time and expires (`STACKX_MAGIC_LINK_TTL`, default 15 min).
+1. Go to `/register`, create an account (name, optional company, email,
+   password). Each signup provisions its own **organization** — a fresh, empty,
+   isolated workspace.
+2. A verification email is sent. In local dev `MAIL_MAILER=log` writes it to
+   `storage/logs/laravel.log` — open the link to verify. App routes require a
+   **verified** email (`/analytics`, `/spy`, …).
+3. Sign in at `/login` with email + password. Password reset is at
+   `/forgot-password`.
 
-Access is gated by `STACKX_ALLOWED_EMAILS` (comma-separated full emails or
-`@domain` globs; empty = fails closed). An authenticated user off the allowlist
-lands on `/not-authorized`.
+**No SMTP yet?** Provision a ready-to-use, pre-verified account from the CLI:
+
+```bash
+php artisan stackx:account you@company.com --company="Your Agency"
+# prints a generated password (or pass --password=…)
+```
+
+Every tenant only ever sees its own data — isolation is enforced by
+`CurrentOrganization` (resolved from the signed-in user's `organization_id`)
+plus the `BelongsToOrganization` global scope, with Postgres RLS deny-all as a
+second layer.
 
 ## AI layer (provider-agnostic)
 
@@ -92,19 +104,21 @@ We never present hallucinated numbers as real metrics.
 
 ```
 app/
-  Http/Controllers/Auth/MagicLinkController.php   # passwordless login
-  Http/Middleware/EnsureAllowlisted.php           # allowlist gate
-  Notifications/MagicLoginLink.php
+  Http/Controllers/Auth/                           # register · login · verify · reset
+  Http/Requests/Auth/LoginRequest.php              # email+password + rate limit
+  Console/Commands/CreateAccountCommand.php        # stackx:account (SMTP-less bootstrap)
   Services/Ai/                                     # swappable AI layer
     AiManager.php · Contracts/AiProvider.php · Drivers/{Anthropic,OpenAi}Provider.php
-  Support/{Allowlist.php, Facades/Ai.php}
+  Support/{CurrentOrganization.php, Facades/Ai.php} # tenant scoping
+  Models/Concerns/BelongsToOrganization.php        # org global scope
 config/{stackx.php, ai.php}
 resources/js/
-  Pages/{Analytics, Spy, Discovery, Create, Reports}/Index.tsx · Auth/Login.tsx
-  Components/{ScoreMeter.tsx, ui/Button.tsx, shell/{Sidebar,Topbar,ComingSoon}}
+  Pages/{Analytics, Spy, Discovery, Create, Reports}/Index.tsx
+  Pages/Auth/{Login,Register,VerifyEmail,ForgotPassword,ResetPassword}.tsx
+  Components/{ScoreMeter.tsx, auth/AuthShell.tsx, ui/Button.tsx, shell/*}
   Layouts/AppLayout.tsx · config/nav.ts · lib/utils.ts
 routes/{web.php, auth.php}
-tests/  # allowlist, magic-link auth, AI manager
+tests/  # auth (register/login/verify/reset), tenancy isolation, scoring, AI
 ```
 
 Currency is **RM (MYR)** throughout. Metrics render in JetBrains Mono with

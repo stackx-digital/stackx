@@ -9,6 +9,12 @@ class Organization extends Model
 {
     protected $fillable = ['name', 'slug'];
 
+    /** Members of this tenant. Solo model today (1 user), but modelled as many. */
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function brands(): HasMany
     {
         return $this->hasMany(Brand::class);

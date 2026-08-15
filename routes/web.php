@@ -9,30 +9,30 @@ use App\Http\Controllers\BoardItemController;
 use App\Http\Controllers\CompetitorController;
 use App\Http\Controllers\CreateController;
 use App\Http\Controllers\DemoCompetitorsController;
+use App\Http\Controllers\DemoDataController;
 use App\Http\Controllers\DiscoveryController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PublicReportController;
 use App\Http\Controllers\ReportController;
-use App\Http\Controllers\DemoDataController;
-use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ScoreController;
 use App\Http\Controllers\SpyController;
 use App\Http\Controllers\VisionTagController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
-| STACKx Ad Intelligence — internal cockpit. Public routes: only /login and
-| the signed magic-link verify. Everything else requires an authenticated,
-| allowlisted session.
+| STACKx Ad Intelligence — multi-tenant SaaS. Public routes: signup, login,
+| password reset, and shared report tokens. Every app route requires an
+| authenticated, email-verified session; all data is scoped to the user's org.
 */
 
 Route::get('/', function () {
     return redirect()->route(Auth::check() ? 'analytics' : 'login');
 });
 
-// Authenticated + allowlisted app shell (the 5 pillars).
-Route::middleware(['auth', 'allowlisted'])->group(function () {
+// Authenticated + email-verified app shell (the 5 pillars). Each user only
+// ever sees their own organization's data (CurrentOrganization + global scope).
+Route::middleware(['auth', 'verified'])->group(function () {
     // P1 — Creative Analytics (report M4). Scored ads from M3.
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
@@ -91,10 +91,5 @@ Route::middleware(['auth', 'allowlisted'])->group(function () {
 
 // Public, read-only shared report (no auth — token is the secret).
 Route::get('/r/{token}', [PublicReportController::class, 'show'])->name('report.public');
-
-// Authenticated but off-allowlist: valid session, no app access.
-Route::get('/not-authorized', fn () => Inertia::render('NotAuthorized'))
-    ->middleware('auth')
-    ->name('not-authorized');
 
 require __DIR__.'/auth.php';

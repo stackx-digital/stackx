@@ -1,79 +1,96 @@
-import { Head, useForm } from "@inertiajs/react";
+import { Link, useForm } from "@inertiajs/react";
 import { type FormEventHandler } from "react";
 
+import { AuthShell, Field, inputClass } from "@/Components/auth/AuthShell";
 import { Button } from "@/Components/ui/Button";
 
-/**
- * Passwordless login. Submits an email; the server emails a magic link only
- * to allowlisted addresses and always shows the same confirmation.
- */
-export default function Login({ status }: { status?: string }) {
-    const { data, setData, post, processing, errors } = useForm({ email: "" });
+/** Email + password sign-in (SaaS). */
+export default function Login({
+    status,
+    canResetPassword,
+}: {
+    status?: string;
+    canResetPassword?: boolean;
+}) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        email: "",
+        password: "",
+        remember: false,
+    });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post("/login");
+        post("/login", { onFinish: () => reset("password") });
     };
 
     return (
-        <>
-            <Head title="Sign in" />
-            <main className="flex min-h-screen items-center justify-center bg-ink px-6">
-                <div className="w-full max-w-sm">
-                    <div className="mb-8 text-center">
-                        <h1 className="font-display text-2xl font-bold tracking-tight text-slate-100">
-                            STACK<span className="text-amber">x</span>
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Ad Intelligence — internal access
-                        </p>
-                    </div>
+        <AuthShell
+            title="Sign in"
+            heading="Sign in to your workspace"
+            status={status}
+            footer={
+                <>
+                    New to STACKx?{" "}
+                    <Link href="/register" className="text-amber hover:underline">
+                        Create an account
+                    </Link>
+                </>
+            }
+        >
+            <form onSubmit={submit}>
+                <Field id="email" label="Email" error={errors.email}>
+                    <input
+                        id="email"
+                        type="email"
+                        required
+                        autoFocus
+                        autoComplete="username"
+                        value={data.email}
+                        onChange={(e) => setData("email", e.target.value)}
+                        placeholder="you@company.com"
+                        className={inputClass}
+                    />
+                </Field>
 
-                    {status && (
-                        <div className="mb-4 rounded-md border border-winner/30 bg-winner/10 px-4 py-3 text-sm text-winner">
-                            {status}
-                        </div>
-                    )}
+                <Field id="password" label="Password" error={errors.password}>
+                    <input
+                        id="password"
+                        type="password"
+                        required
+                        autoComplete="current-password"
+                        value={data.password}
+                        onChange={(e) => setData("password", e.target.value)}
+                        placeholder="••••••••"
+                        className={inputClass}
+                    />
+                </Field>
 
-                    <form
-                        onSubmit={submit}
-                        className="rounded-lg border border-hairline bg-panel p-6"
-                    >
-                        <label
-                            htmlFor="email"
-                            className="mb-2 block text-xs font-medium uppercase tracking-wide text-muted-foreground"
-                        >
-                            Team email
-                        </label>
+                <div className="mb-4 flex items-center justify-between">
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
                         <input
-                            id="email"
-                            type="email"
-                            required
-                            autoComplete="email"
-                            value={data.email}
-                            onChange={(e) => setData("email", e.target.value)}
-                            placeholder="you@stackx.my"
-                            className="mb-1 w-full rounded-md border border-hairline bg-ink px-3 py-2 text-sm text-slate-100 placeholder:text-muted-foreground/60 focus-visible:outline-none"
+                            type="checkbox"
+                            checked={data.remember}
+                            onChange={(e) =>
+                                setData("remember", e.target.checked)
+                            }
+                            className="rounded border-hairline bg-ink text-amber focus:ring-amber/40"
                         />
-                        {errors.email && (
-                            <p className="mb-2 text-xs text-cut">
-                                {errors.email}
-                            </p>
-                        )}
-                        <Button
-                            type="submit"
-                            className="mt-3 w-full"
-                            disabled={processing}
+                        Remember me
+                    </label>
+                    {canResetPassword && (
+                        <Link
+                            href="/forgot-password"
+                            className="text-xs text-muted-foreground hover:text-slate-200"
                         >
-                            {processing ? "Sending…" : "Send sign-in link"}
-                        </Button>
-                    </form>
-
-                    <p className="mt-4 text-center text-xs text-muted-foreground">
-                        Access is restricted to the STACKx team allowlist.
-                    </p>
+                            Forgot password?
+                        </Link>
+                    )}
                 </div>
-            </main>
-        </>
+
+                <Button type="submit" className="w-full" disabled={processing}>
+                    {processing ? "Signing in…" : "Sign in"}
+                </Button>
+            </form>
+        </AuthShell>
     );
 }

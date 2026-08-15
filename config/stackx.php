@@ -4,27 +4,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Team access allowlist
+    | Product identity
     |--------------------------------------------------------------------------
     |
-    | STACKx Ad Intelligence is an internal tool — no public signup. Access is
-    | restricted to this allowlist (comma-separated in STACKX_ALLOWED_EMAILS).
-    | Entries may be a full email (alice@stackx.my) or a domain glob
-    | (@stackx.my). An empty list fails closed — nobody gets in.
+    | STACKx Ad Intelligence is a multi-tenant SaaS. Anyone can self-register;
+    | each signup provisions its own organization (tenant) and all data is
+    | scoped to it. No allowlist — access is governed by auth + email
+    | verification.
     |
     */
 
-    'allowed_emails' => array_filter(
-        array_map('trim', explode(',', (string) env('STACKX_ALLOWED_EMAILS', ''))),
-    ),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Magic link lifetime (minutes)
-    |--------------------------------------------------------------------------
-    */
-
-    'magic_link_ttl' => (int) env('STACKX_MAGIC_LINK_TTL', 15),
+    'app_name' => env('STACKX_APP_NAME', 'STACKx Ad Intelligence'),
 
     /*
     |--------------------------------------------------------------------------

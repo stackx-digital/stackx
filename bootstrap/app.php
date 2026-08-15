@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -13,17 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            HandleInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        $middleware->alias([
-            'allowlisted' => \App\Http\Middleware\EnsureAllowlisted::class,
-        ]);
-
-        // Behind the NAS reverse proxy (TLS terminates there), trust forwarded
-        // headers so Laravel sees https — required for correct URL generation
-        // and secure magic-link cookies.
+        // Behind Laravel Cloud's load balancer (TLS terminates there), trust
+        // forwarded headers so Laravel sees https — required for correct URL
+        // generation and secure session/verification cookies.
         $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
