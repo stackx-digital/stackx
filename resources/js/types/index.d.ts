@@ -12,6 +12,9 @@ export type PageProps<
     auth: {
         user: User;
     };
+    onboarding: {
+        completed: boolean;
+    };
     flash: {
         status?: string | null;
     };

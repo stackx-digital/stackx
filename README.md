@@ -34,6 +34,7 @@ background syncs.
 | P5 | Reports — shareable snapshots + weekly Slack | ✅ **all 5 pillars done** |
 | SaaS 1 | Public signup + email verification + per-org tenancy | ✅ |
 | SaaS 2 | Per-tenant BYO API keys (encrypted) + Settings page | ✅ |
+| SaaS 3 | Onboarding welcome checklist + finish-setup banner | ✅ |
 
 ## Getting started
 
@@ -62,6 +63,10 @@ npm run dev                # Vite
    **verified** email (`/analytics`, `/spy`, …).
 3. Sign in at `/login` with email + password. Password reset is at
    `/forgot-password`.
+4. First verification lands on **`/welcome`** — a guided checklist (add an AI
+   key, load demo data or import a CSV). Until it's finished or skipped, a
+   "finish setup" banner shows across the app. Steps are derived from real
+   state (has a key? has ads?), so the checklist can't drift out of sync.
 
 **No SMTP yet?** Provision a ready-to-use, pre-verified account from the CLI:
 

@@ -8,7 +8,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Organization extends Model
 {
-    protected $fillable = ['name', 'slug'];
+    protected $fillable = ['name', 'slug', 'onboarded_at'];
+
+    protected function casts(): array
+    {
+        return [
+            'onboarded_at' => 'datetime',
+        ];
+    }
 
     /** Members of this tenant. Solo model today (1 user), but modelled as many. */
     public function users(): HasMany

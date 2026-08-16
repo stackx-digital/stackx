@@ -12,6 +12,7 @@ use App\Http\Controllers\DemoCompetitorsController;
 use App\Http\Controllers\DemoDataController;
 use App\Http\Controllers\DiscoveryController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicReportController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ScoreController;
@@ -93,6 +94,10 @@ Route::middleware(['auth', 'verified', 'tenant'])->group(function () {
     // Per-tenant settings — BYO API keys (Phase 2).
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Onboarding — guided welcome checklist for new tenants (Phase 3).
+    Route::get('/welcome', [OnboardingController::class, 'show'])->name('welcome');
+    Route::post('/welcome/complete', [OnboardingController::class, 'complete'])->name('welcome.complete');
 });
 
 // Public, read-only shared report (no auth — token is the secret).

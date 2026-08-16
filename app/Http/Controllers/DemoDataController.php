@@ -15,7 +15,9 @@ class DemoDataController extends Controller
     {
         $seeder->run();
 
-        return redirect()->route('analytics')
+        // back() so it works from both Analytics and the onboarding welcome page;
+        // falls back to the analytics report when there's no referer.
+        return redirect()->back(fallback: route('analytics'))
             ->with('status', 'Demo data loaded — 7 sample ads in the “Demo — Raya Campaign” account.');
     }
 }

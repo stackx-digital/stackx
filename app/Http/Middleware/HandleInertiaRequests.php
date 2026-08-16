@@ -34,6 +34,11 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'onboarding' => [
+                // Drives the "finish setup" banner until a tenant completes or
+                // skips the welcome checklist. Null org (guest) => treated done.
+                'completed' => fn () => $request->user()?->organization?->onboarded_at !== null,
+            ],
             'flash' => [
                 'status' => fn () => $request->session()->get('status'),
             ],
