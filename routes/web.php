@@ -15,6 +15,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PublicReportController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ScoreController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SpyController;
 use App\Http\Controllers\VisionTagController;
 use Illuminate\Support\Facades\Auth;
@@ -31,8 +32,9 @@ Route::get('/', function () {
 });
 
 // Authenticated + email-verified app shell (the 5 pillars). Each user only
-// ever sees their own organization's data (CurrentOrganization + global scope).
-Route::middleware(['auth', 'verified'])->group(function () {
+// ever sees their own organization's data (CurrentOrganization + global scope),
+// and the tenant's BYO credentials are overlaid onto config (ApplyTenantSettings).
+Route::middleware(['auth', 'verified', 'tenant'])->group(function () {
     // P1 — Creative Analytics (report M4). Scored ads from M3.
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
 
@@ -87,6 +89,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
     Route::post('/reports/slack', [ReportController::class, 'slack'])->name('reports.slack');
     Route::delete('/reports/{report}', [ReportController::class, 'destroy'])->name('reports.destroy');
+
+    // Per-tenant settings — BYO API keys (Phase 2).
+    Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
+    Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
 });
 
 // Public, read-only shared report (no auth — token is the secret).

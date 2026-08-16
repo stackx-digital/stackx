@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Organization extends Model
 {
@@ -13,6 +14,12 @@ class Organization extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /** This tenant's BYO credentials + provider preferences (Phase 2). */
+    public function settings(): HasOne
+    {
+        return $this->hasOne(OrganizationSetting::class);
     }
 
     public function brands(): HasMany

@@ -1,4 +1,5 @@
 import { Link, usePage } from "@inertiajs/react";
+import { Settings } from "lucide-react";
 
 import { NAV_ITEMS } from "@/config/nav";
 import { cn } from "@/lib/utils";
@@ -54,8 +55,27 @@ export function Sidebar() {
                 })}
             </nav>
 
-            <div className="border-t border-hairline p-3 text-[10px] text-muted-foreground">
-                Internal tool · RM (MYR)
+            <div className="space-y-1 border-t border-hairline p-3">
+                <Link
+                    href="/settings"
+                    aria-current={
+                        url === "/settings" || url.startsWith("/settings/")
+                            ? "page"
+                            : undefined
+                    }
+                    className={cn(
+                        "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
+                        url === "/settings" || url.startsWith("/settings/")
+                            ? "bg-ink text-slate-100"
+                            : "text-muted-foreground hover:bg-ink/60 hover:text-slate-200",
+                    )}
+                >
+                    <Settings className="size-4 shrink-0" />
+                    <span className="flex-1">Settings</span>
+                </Link>
+                <p className="px-3 pt-1 text-[10px] text-muted-foreground">
+                    RM (MYR)
+                </p>
             </div>
         </aside>
     );
