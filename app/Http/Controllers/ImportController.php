@@ -6,6 +6,7 @@ use App\Services\Ingest\AdMetricsImporter;
 use App\Services\Ingest\DefaultAdAccount;
 use App\Services\Ingest\MetaCsvParser;
 use App\Services\Ingest\MetaHeaderMap;
+use App\Services\Settings\TenantSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -25,9 +26,11 @@ class ImportController extends Controller
         private readonly DefaultAdAccount $defaultAccount,
     ) {}
 
-    public function show(): Response
+    public function show(TenantSettings $tenant): Response
     {
-        return Inertia::render('Analytics/Import');
+        return Inertia::render('Analytics/Import', [
+            'metaConnected' => $tenant->capabilities()['metaSync'],
+        ]);
     }
 
     /** Parse the upload and show a mapping preview before committing. */

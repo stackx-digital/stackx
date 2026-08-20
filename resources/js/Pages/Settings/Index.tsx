@@ -4,6 +4,7 @@ import {
     Check,
     Eye,
     KeyRound,
+    LineChart,
     Search,
     Send,
     type LucideIcon,
@@ -18,6 +19,7 @@ type SecretKey =
     | "openai_api_key"
     | "voyage_api_key"
     | "meta_ad_library_token"
+    | "meta_system_token"
     | "slack_webhook_url";
 
 interface Props {
@@ -26,12 +28,14 @@ interface Props {
         anthropicModel: string | null;
         openaiModel: string | null;
         embeddingProvider: string | null;
+        metaAdAccountId: string | null;
         configured: Record<SecretKey, boolean>;
     };
     capabilities: {
         ai: boolean;
         embedding: boolean;
         adLibrary: boolean;
+        metaSync: boolean;
         slack: boolean;
     };
     defaults: {
@@ -57,10 +61,12 @@ export default function SettingsIndex({
             anthropic_model: settings.anthropicModel ?? "",
             openai_model: settings.openaiModel ?? "",
             embedding_provider: settings.embeddingProvider ?? "",
+            meta_ad_account_id: settings.metaAdAccountId ?? "",
             anthropic_api_key: "",
             openai_api_key: "",
             voyage_api_key: "",
             meta_ad_library_token: "",
+            meta_system_token: "",
             slack_webhook_url: "",
             remove: [] as SecretKey[],
         });
@@ -100,8 +106,13 @@ export default function SettingsIndex({
                     </div>
                 )}
 
-                <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                     <Capability label="AI" on={capabilities.ai} icon={BrainCircuit} />
+                    <Capability
+                        label="Meta sync"
+                        on={capabilities.metaSync}
+                        icon={LineChart}
+                    />
                     <Capability
                         label="Embeddings"
                         on={capabilities.embedding}
@@ -206,6 +217,49 @@ export default function SettingsIndex({
                             toggleRemove={toggleRemove}
                             placeholder="pa-…"
                         />
+                    </Section>
+
+                    <Section
+                        icon={LineChart}
+                        title="Meta Ads — live performance sync"
+                        blurb="Pull your own ad account's daily creative performance straight from the Meta Marketing API. Needs a System User token with ads_read and your ad account id."
+                    >
+                        <Row label="Ad account ID">
+                            <input
+                                value={data.meta_ad_account_id}
+                                onChange={(e) =>
+                                    setData(
+                                        "meta_ad_account_id",
+                                        e.target.value,
+                                    )
+                                }
+                                placeholder="act_123456789"
+                                className={inputClass}
+                            />
+                        </Row>
+                        <SecretRow
+                            label="System User token"
+                            name="meta_system_token"
+                            data={data}
+                            setData={setData}
+                            configured={settings.configured.meta_system_token}
+                            error={errors.meta_system_token}
+                            toggleRemove={toggleRemove}
+                            placeholder="EAA…"
+                        />
+                        {capabilities.metaSync && (
+                            <p className="text-[11px] text-muted-foreground">
+                                Connected. Sync runs daily, or trigger it now
+                                from the{" "}
+                                <a
+                                    href="/analytics/import"
+                                    className="text-amber hover:underline"
+                                >
+                                    import page
+                                </a>
+                                .
+                            </p>
+                        )}
                     </Section>
 
                     <Section

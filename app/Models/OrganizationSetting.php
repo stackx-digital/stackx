@@ -24,6 +24,8 @@ class OrganizationSetting extends Model
         'embedding_provider',
         'voyage_api_key',
         'meta_ad_library_token',
+        'meta_system_token',
+        'meta_ad_account_id',
         'slack_webhook_url',
     ];
 
@@ -32,6 +34,7 @@ class OrganizationSetting extends Model
         'openai_api_key',
         'voyage_api_key',
         'meta_ad_library_token',
+        'meta_system_token',
         'slack_webhook_url',
     ];
 
@@ -42,6 +45,7 @@ class OrganizationSetting extends Model
             'openai_api_key' => 'encrypted',
             'voyage_api_key' => 'encrypted',
             'meta_ad_library_token' => 'encrypted',
+            'meta_system_token' => 'encrypted',
             'slack_webhook_url' => 'encrypted',
         ];
     }

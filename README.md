@@ -80,6 +80,20 @@ Every tenant only ever sees its own data — isolation is enforced by
 plus the `BelongsToOrganization` global scope, with Postgres RLS deny-all as a
 second layer.
 
+## Live Meta Marketing sync (P1)
+
+Beyond CSV import, a tenant can connect their own Meta ad account for live
+creative performance. In `/settings` → **Meta Ads** they enter a **System User
+token** (`ads_read`) + **ad account id** (`act_…`); both are stored encrypted
+per tenant. `MetaMarketingClient` pulls ad-level daily insights from the
+Marketing API, and `MetaSync` feeds them through the *same* importer the CSV
+path uses — so live and imported data are identical in shape and the scoring
+engine treats them the same.
+
+Trigger it on demand from the import page ("Sync now") or let the scheduled
+`meta:sync` command run it daily per connected tenant. Not connected → the CSV
+import path always remains, and the feature degrades honestly.
+
 ## Per-tenant credentials (BYO keys)
 
 Each workspace enters its own credentials at **`/settings`** — Anthropic /

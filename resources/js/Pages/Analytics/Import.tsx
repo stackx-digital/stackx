@@ -1,5 +1,11 @@
 import { Head, Link, useForm } from "@inertiajs/react";
-import { UploadCloud, AlertTriangle, CheckCircle2 } from "lucide-react";
+import {
+    UploadCloud,
+    AlertTriangle,
+    CheckCircle2,
+    LineChart,
+    Settings,
+} from "lucide-react";
 import { useRef, useState, type DragEvent, type FormEventHandler } from "react";
 
 import { Button } from "@/Components/ui/Button";
@@ -38,9 +44,11 @@ interface Preview {
 export default function Import({
     preview,
     importToken,
+    metaConnected,
 }: {
     preview?: Preview;
     importToken?: string;
+    metaConnected?: boolean;
 }) {
     return (
         <AppLayout>
@@ -51,14 +59,16 @@ export default function Import({
                         P1 · Data ingest
                     </span>
                     <h1 className="mt-1 font-display text-2xl font-bold text-slate-100">
-                        Import Meta CSV
+                        Get your ads in
                     </h1>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        Export from Ads Manager and drop the CSV here. Column
-                        names vary by locale/currency — we map them flexibly and
-                        show you exactly what was recognized before importing.
+                        Sync live from Meta, or export from Ads Manager and drop
+                        the CSV here. Column names vary by locale/currency — we
+                        map them flexibly and show exactly what was recognized.
                     </p>
                 </div>
+
+                {!preview && <MetaSyncCard connected={metaConnected ?? false} />}
 
                 {preview ? (
                     <PreviewPanel preview={preview} importToken={importToken!} />
@@ -67,6 +77,46 @@ export default function Import({
                 )}
             </div>
         </AppLayout>
+    );
+}
+
+function MetaSyncCard({ connected }: { connected: boolean }) {
+    const { post, processing } = useForm({});
+
+    const sync: FormEventHandler = (e) => {
+        e.preventDefault();
+        post("/analytics/meta/sync");
+    };
+
+    return (
+        <div className="mb-5 flex flex-wrap items-center gap-4 rounded-lg border border-hairline bg-panel p-5">
+            <LineChart className="size-5 shrink-0 text-amber" />
+            <div className="min-w-0 flex-1">
+                <h2 className="font-display text-sm font-semibold text-slate-100">
+                    Sync live from Meta
+                </h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                    {connected
+                        ? "Pull the last 30 days of ad-level performance straight from your Meta ad account."
+                        : "Connect a Meta System User token and ad account id in Settings to enable live sync."}
+                </p>
+            </div>
+            {connected ? (
+                <form onSubmit={sync}>
+                    <Button type="submit" disabled={processing}>
+                        <LineChart className="size-4" />
+                        {processing ? "Syncing…" : "Sync now"}
+                    </Button>
+                </form>
+            ) : (
+                <Link href="/settings">
+                    <Button variant="outline">
+                        <Settings className="size-4" />
+                        Connect Meta
+                    </Button>
+                </Link>
+            )}
+        </div>
     );
 }
 

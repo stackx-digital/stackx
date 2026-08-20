@@ -12,6 +12,7 @@ use App\Http\Controllers\DemoCompetitorsController;
 use App\Http\Controllers\DemoDataController;
 use App\Http\Controllers\DiscoveryController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\MetaSyncController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PublicReportController;
 use App\Http\Controllers\ReportController;
@@ -44,6 +45,9 @@ Route::middleware(['auth', 'verified', 'tenant'])->group(function () {
     Route::post('/analytics/import/preview', [ImportController::class, 'preview'])->name('import.preview');
     Route::post('/analytics/import', [ImportController::class, 'store'])->name('import.store');
     Route::post('/analytics/demo', [DemoDataController::class, 'store'])->name('demo.load');
+
+    // Live Meta Marketing sync (P1 live) — pull own ad-account performance.
+    Route::post('/analytics/meta/sync', [MetaSyncController::class, 'store'])->name('meta.sync');
 
     // Scoring (M3).
     Route::post('/analytics/score', [ScoreController::class, 'store'])->name('score.recompute');

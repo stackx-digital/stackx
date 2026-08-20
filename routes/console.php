@@ -8,6 +8,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
+// P1 — daily live Meta Marketing sync per tenant (skips unconnected orgs).
+Schedule::command('meta:sync')->dailyAt('02:30')->withoutOverlapping();
+
 // P2 Brand Spy — daily competitor Ad Library sync (no-ops when disabled).
 Schedule::command('spy:sync')->dailyAt('03:00')->withoutOverlapping();
 

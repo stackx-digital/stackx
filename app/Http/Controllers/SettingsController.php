@@ -22,6 +22,7 @@ class SettingsController extends Controller
         'openai_api_key',
         'voyage_api_key',
         'meta_ad_library_token',
+        'meta_system_token',
         'slack_webhook_url',
     ];
 
@@ -35,6 +36,7 @@ class SettingsController extends Controller
                 'anthropicModel' => $s?->anthropic_model,
                 'openaiModel' => $s?->openai_model,
                 'embeddingProvider' => $s?->embedding_provider,
+                'metaAdAccountId' => $s?->meta_ad_account_id,
                 // Presence only — never the values themselves.
                 'configured' => collect(self::SECRETS)
                     ->mapWithKeys(fn ($k) => [$k => filled($s?->{$k})])
@@ -58,11 +60,13 @@ class SettingsController extends Controller
             'anthropic_model' => ['nullable', 'string', 'max:120'],
             'openai_model' => ['nullable', 'string', 'max:120'],
             'embedding_provider' => ['nullable', 'in:openai,voyage'],
+            'meta_ad_account_id' => ['nullable', 'string', 'max:64'],
 
             'anthropic_api_key' => ['nullable', 'string', 'max:300'],
             'openai_api_key' => ['nullable', 'string', 'max:300'],
             'voyage_api_key' => ['nullable', 'string', 'max:300'],
             'meta_ad_library_token' => ['nullable', 'string', 'max:500'],
+            'meta_system_token' => ['nullable', 'string', 'max:500'],
             'slack_webhook_url' => ['nullable', 'string', 'url', 'max:500'],
 
             // Explicit "remove this saved credential" toggles.
@@ -77,6 +81,7 @@ class SettingsController extends Controller
         $settings->anthropic_model = $validated['anthropic_model'] ?? null;
         $settings->openai_model = $validated['openai_model'] ?? null;
         $settings->embedding_provider = $validated['embedding_provider'] ?? null;
+        $settings->meta_ad_account_id = $validated['meta_ad_account_id'] ?? null;
 
         // Secrets: a new value replaces, a remove flag clears, blank keeps.
         $remove = $validated['remove'] ?? [];

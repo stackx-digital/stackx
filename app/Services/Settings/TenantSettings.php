@@ -58,6 +58,10 @@ class TenantSettings
             Config::set('ad_library.enabled', true);
         }
 
+        // --- Live Meta Marketing sync (config/meta.php) ---
+        $this->set('meta.token', $settings->meta_system_token);
+        $this->set('meta.ad_account_id', $settings->meta_ad_account_id);
+
         // --- Reports Slack (config/services.php) ---
         $this->set('services.slack.webhook', $settings->slack_webhook_url);
     }
@@ -82,6 +86,8 @@ class TenantSettings
             'embedding' => filled($s?->openai_api_key) || filled($s?->voyage_api_key)
                 || filled(config('embedding.providers.openai.key')),
             'adLibrary' => filled($s?->meta_ad_library_token) || filled(config('ad_library.token')),
+            'metaSync' => (filled($s?->meta_system_token) || filled(config('meta.token')))
+                && (filled($s?->meta_ad_account_id) || filled(config('meta.ad_account_id'))),
             'slack' => filled($s?->slack_webhook_url) || filled(config('services.slack.webhook')),
         ];
     }
