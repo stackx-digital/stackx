@@ -21,7 +21,13 @@ class MetaMarketingClient
 
     public function enabled(): bool
     {
-        return filled(config('meta.token')) && $this->accountIds() !== [];
+        return filled($this->token()) && $this->accountIds() !== [];
+    }
+
+    /** The access token, trimmed of stray whitespace/newlines from pasting. */
+    private function token(): string
+    {
+        return trim((string) config('meta.token'));
     }
 
     /**
@@ -52,7 +58,7 @@ class MetaMarketingClient
      */
     public function insights(string $accountId, ?int $lookbackDays = null): array
     {
-        if (filled(config('meta.token')) === false) {
+        if (filled($this->token()) === false) {
             throw new MetaException('Meta is not connected — add a System User token in Settings.');
         }
 
@@ -67,7 +73,7 @@ class MetaMarketingClient
             'date_preset' => $this->datePreset($days),
             'fields' => implode(',', self::FIELDS),
             'limit' => (int) config('meta.page_limit', 200),
-            'access_token' => config('meta.token'),
+            'access_token' => $this->token(),
         ];
 
         $insights = [];
