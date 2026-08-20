@@ -20,6 +20,7 @@ class SettingsController extends Controller
     private const SECRETS = [
         'anthropic_api_key',
         'openai_api_key',
+        'ollama_api_key',
         'voyage_api_key',
         'meta_ad_library_token',
         'meta_system_token',
@@ -36,6 +37,7 @@ class SettingsController extends Controller
                 'aiProvider' => $s?->ai_provider,
                 'anthropicModel' => $s?->anthropic_model,
                 'openaiModel' => $s?->openai_model,
+                'ollamaModel' => $s?->ollama_model,
                 'embeddingProvider' => $s?->embedding_provider,
                 'metaAdAccountId' => $s?->meta_ad_account_id,
                 'metaAppId' => $s?->meta_app_id,
@@ -58,15 +60,17 @@ class SettingsController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'ai_provider' => ['nullable', 'in:anthropic,openai'],
+            'ai_provider' => ['nullable', 'in:anthropic,openai,ollama'],
             'anthropic_model' => ['nullable', 'string', 'max:120'],
             'openai_model' => ['nullable', 'string', 'max:120'],
+            'ollama_model' => ['nullable', 'string', 'max:120'],
             'embedding_provider' => ['nullable', 'in:openai,voyage'],
             'meta_ad_account_id' => ['nullable', 'string', 'max:1000'],
             'meta_app_id' => ['nullable', 'string', 'max:64'],
 
             'anthropic_api_key' => ['nullable', 'string', 'max:300'],
             'openai_api_key' => ['nullable', 'string', 'max:300'],
+            'ollama_api_key' => ['nullable', 'string', 'max:300'],
             'voyage_api_key' => ['nullable', 'string', 'max:300'],
             'meta_ad_library_token' => ['nullable', 'string', 'max:500'],
             'meta_system_token' => ['nullable', 'string', 'max:500'],
@@ -84,6 +88,7 @@ class SettingsController extends Controller
         $settings->ai_provider = $validated['ai_provider'] ?? null;
         $settings->anthropic_model = $validated['anthropic_model'] ?? null;
         $settings->openai_model = $validated['openai_model'] ?? null;
+        $settings->ollama_model = $validated['ollama_model'] ?? null;
         $settings->embedding_provider = $validated['embedding_provider'] ?? null;
         $settings->meta_ad_account_id = $validated['meta_ad_account_id'] ?? null;
         $settings->meta_app_id = $validated['meta_app_id'] ?? null;

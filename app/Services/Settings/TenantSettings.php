@@ -46,6 +46,8 @@ class TenantSettings
         $this->set('ai.providers.anthropic.model', $settings->anthropic_model);
         $this->set('ai.providers.openai.key', $settings->openai_api_key);
         $this->set('ai.providers.openai.model', $settings->openai_model);
+        $this->set('ai.providers.ollama.key', $settings->ollama_api_key);
+        $this->set('ai.providers.ollama.model', $settings->ollama_model);
 
         // --- Embeddings (config/embedding.php). OpenAI reuses the AI key. ---
         $this->set('embedding.default', $settings->embedding_provider);
@@ -79,9 +81,11 @@ class TenantSettings
         $s = $this->current();
 
         $aiProvider = $s?->ai_provider ?? config('ai.default');
-        $aiReady = $aiProvider === 'openai'
-            ? filled($s?->openai_api_key) || filled(config('ai.providers.openai.key'))
-            : filled($s?->anthropic_api_key) || filled(config('ai.providers.anthropic.key'));
+        $aiReady = match ($aiProvider) {
+            'openai' => filled($s?->openai_api_key) || filled(config('ai.providers.openai.key')),
+            'ollama' => filled($s?->ollama_api_key) || filled(config('ai.providers.ollama.key')),
+            default => filled($s?->anthropic_api_key) || filled(config('ai.providers.anthropic.key')),
+        };
 
         return [
             'ai' => $aiReady,

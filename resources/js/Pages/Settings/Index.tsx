@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 type SecretKey =
     | "anthropic_api_key"
     | "openai_api_key"
+    | "ollama_api_key"
     | "voyage_api_key"
     | "meta_ad_library_token"
     | "meta_system_token"
@@ -28,6 +29,7 @@ interface Props {
         aiProvider: string | null;
         anthropicModel: string | null;
         openaiModel: string | null;
+        ollamaModel: string | null;
         embeddingProvider: string | null;
         metaAdAccountId: string | null;
         metaAppId: string | null;
@@ -62,11 +64,13 @@ export default function SettingsIndex({
             ai_provider: settings.aiProvider ?? "",
             anthropic_model: settings.anthropicModel ?? "",
             openai_model: settings.openaiModel ?? "",
+            ollama_model: settings.ollamaModel ?? "",
             embedding_provider: settings.embeddingProvider ?? "",
             meta_ad_account_id: settings.metaAdAccountId ?? "",
             meta_app_id: settings.metaAppId ?? "",
             anthropic_api_key: "",
             openai_api_key: "",
+            ollama_api_key: "",
             voyage_api_key: "",
             meta_ad_library_token: "",
             meta_system_token: "",
@@ -147,6 +151,7 @@ export default function SettingsIndex({
                                 <option value="">Use deployment default</option>
                                 <option value="anthropic">Anthropic (Claude)</option>
                                 <option value="openai">OpenAI (GPT)</option>
+                                <option value="ollama">Ollama Cloud</option>
                             </select>
                         </Row>
 
@@ -190,6 +195,33 @@ export default function SettingsIndex({
                                 placeholder={defaults.openaiModel}
                                 className={inputClass}
                             />
+                        </Row>
+
+                        <SecretRow
+                            label="Ollama Cloud API key"
+                            name="ollama_api_key"
+                            data={data}
+                            setData={setData}
+                            configured={settings.configured.ollama_api_key}
+                            error={errors.ollama_api_key}
+                            toggleRemove={toggleRemove}
+                            placeholder="ollama.com API key"
+                        />
+                        <Row label="Ollama model">
+                            <input
+                                value={data.ollama_model}
+                                onChange={(e) =>
+                                    setData("ollama_model", e.target.value)
+                                }
+                                placeholder="gpt-oss:120b-cloud"
+                                className={inputClass}
+                            />
+                            <p className="mt-1 text-[11px] text-muted-foreground">
+                                Use a "-cloud" model tag (e.g.{" "}
+                                <code>gpt-oss:120b-cloud</code>,{" "}
+                                <code>qwen3-coder:480b-cloud</code>) — local
+                                tags won't resolve against Ollama's hosted API.
+                            </p>
                         </Row>
                     </Section>
 

@@ -4,6 +4,7 @@ namespace App\Services\Ai;
 
 use App\Services\Ai\Contracts\AiProvider;
 use App\Services\Ai\Drivers\AnthropicProvider;
+use App\Services\Ai\Drivers\OllamaProvider;
 use App\Services\Ai\Drivers\OpenAiProvider;
 use Illuminate\Support\Manager;
 
@@ -34,6 +35,15 @@ class AiManager extends Manager
     {
         return new OpenAiProvider(
             (array) $this->config->get('ai.providers.openai', []),
+            (int) $this->config->get('ai.timeout', 60),
+            (int) $this->config->get('ai.retries', 2),
+        );
+    }
+
+    protected function createOllamaDriver(): AiProvider
+    {
+        return new OllamaProvider(
+            (array) $this->config->get('ai.providers.ollama', []),
             (int) $this->config->get('ai.timeout', 60),
             (int) $this->config->get('ai.retries', 2),
         );

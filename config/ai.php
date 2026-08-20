@@ -9,7 +9,7 @@ return [
     |
     | The AI layer is provider-agnostic (driver pattern, like Laravel's mail
     | and queue managers). Swap providers by changing AI_PROVIDER — no code
-    | change. Supported: "anthropic", "openai".
+    | change. Supported: "anthropic", "openai", "ollama".
     |
     */
 
@@ -36,6 +36,16 @@ return [
             'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
             'max_tokens' => (int) env('OPENAI_MAX_TOKENS', 4096),
             'base_url' => env('OPENAI_BASE_URL', 'https://api.openai.com'),
+        ],
+
+        // Ollama Cloud — hosted, OpenAI-compatible. Use a "-cloud" model tag
+        // (e.g. "gpt-oss:120b-cloud", "qwen3-coder:480b-cloud"); local/non-cloud
+        // tags won't resolve against the hosted API.
+        'ollama' => [
+            'key' => env('OLLAMA_API_KEY'),
+            'model' => env('OLLAMA_MODEL', 'gpt-oss:120b-cloud'),
+            'max_tokens' => (int) env('OLLAMA_MAX_TOKENS', 4096),
+            'base_url' => env('OLLAMA_BASE_URL', 'https://ollama.com'),
         ],
 
     ],

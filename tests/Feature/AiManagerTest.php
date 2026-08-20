@@ -57,6 +57,24 @@ class AiManagerTest extends TestCase
         $this->assertSame('urgency', $result['angle']);
     }
 
+    public function test_ollama_driver_parses_structured_json(): void
+    {
+        Config::set('ai.providers.ollama.key', 'test-key');
+        Config::set('ai.providers.ollama.model', 'gpt-oss:120b-cloud');
+
+        Http::fake([
+            'ollama.com/v1/chat/completions' => Http::response([
+                'choices' => [['message' => ['content' => '{"angle":"seasonal"}']]],
+            ]),
+        ]);
+
+        $result = $this->manager()->driver('ollama')
+            ->structuredJson('tag this ad', 'Ad: Raya promo');
+
+        $this->assertSame('seasonal', $result['angle']);
+        $this->assertSame('ollama', $this->manager()->driver('ollama')->name());
+    }
+
     public function test_code_fenced_json_is_tolerated(): void
     {
         Config::set('ai.providers.anthropic.key', 'test-key');

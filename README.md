@@ -90,9 +90,12 @@ Marketing API, and `MetaSync` feeds them through the *same* importer the CSV
 path uses — so live and imported data are identical in shape and the scoring
 engine treats them the same.
 
-Trigger it on demand from the import page ("Sync now") or let the scheduled
-`meta:sync` command run it daily per connected tenant. Not connected → the CSV
-import path always remains, and the feature degrades honestly.
+Trigger it on demand from the import page ("Sync now" — pulls a short 3-day
+window so the request finishes inside the server's gateway timeout) or let the
+scheduled `meta:sync` command keep it fresh automatically, every hour, per
+connected tenant (a CLI process, so it always pulls the full
+`config('meta.lookback_days')` window). Not connected → the CSV import path
+always remains, and the feature degrades honestly.
 
 ## Per-tenant credentials (BYO keys)
 
@@ -116,7 +119,7 @@ The AI layer uses Laravel's driver pattern — like `MAIL_MAILER` or
 `QUEUE_CONNECTION`. Swap providers with **one env var**, no code change:
 
 ```env
-AI_PROVIDER=anthropic   # or: openai
+AI_PROVIDER=anthropic   # or: openai, ollama
 ```
 
 ```php
@@ -126,9 +129,13 @@ $tags = Ai::structuredJson($system, $userPrompt);          // default provider
 $tags = Ai::driver('openai')->structuredJson($system, $u); // force a provider
 ```
 
-Both `Anthropic` and `OpenAI` drivers ship (`app/Services/Ai/Drivers`), return
-validated JSON objects, and throw `AiException` on failure so callers can
-degrade gracefully — **analytics keeps working even when the AI layer is down**.
+`Anthropic`, `OpenAI`, and `Ollama` (Cloud) drivers all ship
+(`app/Services/Ai/Drivers`), return validated JSON objects, and throw
+`AiException` on failure so callers can degrade gracefully — **analytics keeps
+working even when the AI layer is down**. Ollama Cloud is OpenAI-compatible
+(`https://ollama.com/v1/chat/completions`); use a "-cloud" model tag (e.g.
+`gpt-oss:120b-cloud`) — local/non-cloud tags won't resolve against the hosted
+API. Each tenant can pick a provider + BYO key at `/settings`.
 
 ## Data provenance
 

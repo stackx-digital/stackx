@@ -21,6 +21,8 @@ class OrganizationSetting extends Model
         'anthropic_model',
         'openai_api_key',
         'openai_model',
+        'ollama_api_key',
+        'ollama_model',
         'embedding_provider',
         'voyage_api_key',
         'meta_ad_library_token',
@@ -34,6 +36,7 @@ class OrganizationSetting extends Model
     protected $hidden = [
         'anthropic_api_key',
         'openai_api_key',
+        'ollama_api_key',
         'voyage_api_key',
         'meta_ad_library_token',
         'meta_system_token',
@@ -46,6 +49,7 @@ class OrganizationSetting extends Model
         return [
             'anthropic_api_key' => 'encrypted',
             'openai_api_key' => 'encrypted',
+            'ollama_api_key' => 'encrypted',
             'voyage_api_key' => 'encrypted',
             'meta_ad_library_token' => 'encrypted',
             'meta_system_token' => 'encrypted',
