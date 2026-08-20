@@ -7,6 +7,7 @@ use App\Services\Ingest\AdMetricsImporter;
 use App\Services\Ingest\ImportResult;
 use App\Services\Ingest\MetaHeaderMap;
 use App\Services\Ingest\ParsedCsv;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Pulls live ad-level daily insights from the Meta Marketing API and upserts
@@ -80,7 +81,15 @@ class MetaSync
     {
         try {
             $thumbnails = $this->client->creativeThumbnails($accountId);
-        } catch (MetaException) {
+        } catch (MetaException $e) {
+            // Logged (not thrown) — a thumbnail hiccup must never break the
+            // metrics sync, but silent failure here made "no pictures" hard to
+            // diagnose. Check the app logs if thumbnails stay empty.
+            Log::warning('Meta creative thumbnail fetch failed', [
+                'ad_account_id' => $accountId,
+                'message' => $e->getMessage(),
+            ]);
+
             return;
         }
 

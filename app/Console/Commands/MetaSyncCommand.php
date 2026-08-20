@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Organization;
-use App\Models\OrganizationSetting;
 use App\Services\Marketing\MetaException;
 use App\Services\Marketing\MetaSync;
+use App\Services\Settings\TenantSettings;
 use App\Support\CurrentOrganization;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
@@ -22,7 +22,7 @@ class MetaSyncCommand extends Command
 
     protected $description = 'Pull live ad-account performance from Meta for every connected tenant.';
 
-    public function handle(CurrentOrganization $current, MetaSync $sync): int
+    public function handle(CurrentOrganization $current, MetaSync $sync, TenantSettings $tenantSettings): int
     {
         $days = $this->option('days') !== null ? (int) $this->option('days') : null;
 
@@ -30,15 +30,21 @@ class MetaSyncCommand extends Command
         // a per-tenant overlay from a previous iteration.
         $envToken = config('meta.token');
         $envAccount = config('meta.ad_account_id');
+        $envAppId = config('meta.app_id');
+        $envAppSecret = config('meta.app_secret');
 
         foreach (Organization::query()->orderBy('id')->get() as $org) {
             $current->set($org->id);
 
-            $settings = OrganizationSetting::query()->first();
-            // Explicitly set (including the env fallback) so one org's token
-            // never bleeds into the next iteration.
-            Config::set('meta.token', $settings?->meta_system_token ?: $envToken);
-            Config::set('meta.ad_account_id', $settings?->meta_ad_account_id ?: $envAccount);
+            // Reset to the env baseline first (explicitly, including nulls) so
+            // one org's credentials never bleed into the next iteration, then
+            // let TenantSettings overlay this org's own values on top — the
+            // same path the web "Sync now" button uses, so both stay in sync.
+            Config::set('meta.token', $envToken);
+            Config::set('meta.ad_account_id', $envAccount);
+            Config::set('meta.app_id', $envAppId);
+            Config::set('meta.app_secret', $envAppSecret);
+            $tenantSettings->apply();
 
             if (! $sync->enabled()) {
                 continue;
