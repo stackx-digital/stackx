@@ -20,6 +20,7 @@ type SecretKey =
     | "voyage_api_key"
     | "meta_ad_library_token"
     | "meta_system_token"
+    | "meta_app_secret"
     | "slack_webhook_url";
 
 interface Props {
@@ -29,6 +30,7 @@ interface Props {
         openaiModel: string | null;
         embeddingProvider: string | null;
         metaAdAccountId: string | null;
+        metaAppId: string | null;
         configured: Record<SecretKey, boolean>;
     };
     capabilities: {
@@ -62,11 +64,13 @@ export default function SettingsIndex({
             openai_model: settings.openaiModel ?? "",
             embedding_provider: settings.embeddingProvider ?? "",
             meta_ad_account_id: settings.metaAdAccountId ?? "",
+            meta_app_id: settings.metaAppId ?? "",
             anthropic_api_key: "",
             openai_api_key: "",
             voyage_api_key: "",
             meta_ad_library_token: "",
             meta_system_token: "",
+            meta_app_secret: "",
             slack_webhook_url: "",
             remove: [] as SecretKey[],
         });
@@ -251,7 +255,27 @@ export default function SettingsIndex({
                             configured={settings.configured.meta_system_token}
                             error={errors.meta_system_token}
                             toggleRemove={toggleRemove}
-                            placeholder="EAA…"
+                            placeholder="EAA… (starts with EAA, ~200 chars)"
+                        />
+                        <Row label="App ID">
+                            <input
+                                value={data.meta_app_id}
+                                onChange={(e) =>
+                                    setData("meta_app_id", e.target.value)
+                                }
+                                placeholder="1234567890"
+                                className={inputClass}
+                            />
+                        </Row>
+                        <SecretRow
+                            label="App Secret"
+                            name="meta_app_secret"
+                            data={data}
+                            setData={setData}
+                            configured={settings.configured.meta_app_secret}
+                            error={errors.meta_app_secret}
+                            toggleRemove={toggleRemove}
+                            placeholder="app secret (fixes #200 on dev-mode apps)"
                         />
                         {capabilities.metaSync && (
                             <p className="text-[11px] text-muted-foreground">

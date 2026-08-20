@@ -31,6 +31,21 @@ class MetaMarketingClient
     }
 
     /**
+     * HMAC-SHA256 of the access token keyed by the app secret — Meta's
+     * appsecret_proof. Null when no app secret is configured.
+     */
+    private function appSecretProof(): ?string
+    {
+        $secret = trim((string) config('meta.app_secret'));
+
+        if ($secret === '' || $this->token() === '') {
+            return null;
+        }
+
+        return hash_hmac('sha256', $this->token(), $secret);
+    }
+
+    /**
      * A non-secret fingerprint of the token in use (first 4 + last 4 + length),
      * so a failing-but-valid-looking token can be traced to the exact value the
      * app sent — without exposing the token itself.
@@ -92,6 +107,12 @@ class MetaMarketingClient
             'access_token' => $this->token(),
         ];
 
+        // Prove the call comes from the app (required for server-side calls when
+        // the app enforces it; fixes "(#200) Provide valid app ID" in dev mode).
+        if (($proof = $this->appSecretProof()) !== null) {
+            $params['appsecret_proof'] = $proof;
+        }
+
         $insights = [];
         $maxPages = (int) config('meta.max_pages', 25);
 
@@ -123,7 +144,11 @@ class MetaMarketingClient
                 break;
             }
 
-            // The `next` cursor is a full URL with the token + params baked in.
+            // The `next` cursor is a full URL with the token baked in, but not
+            // the appsecret_proof — append it so paginated pages stay authorized.
+            if (($proof = $this->appSecretProof()) !== null && ! str_contains($next, 'appsecret_proof=')) {
+                $next .= '&appsecret_proof='.$proof;
+            }
             $url = $next;
             $params = [];
         }

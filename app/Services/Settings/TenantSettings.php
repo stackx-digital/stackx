@@ -61,6 +61,8 @@ class TenantSettings
         // --- Live Meta Marketing sync (config/meta.php) ---
         $this->set('meta.token', $settings->meta_system_token);
         $this->set('meta.ad_account_id', $settings->meta_ad_account_id);
+        $this->set('meta.app_id', $settings->meta_app_id);
+        $this->set('meta.app_secret', $settings->meta_app_secret);
 
         // --- Reports Slack (config/services.php) ---
         $this->set('services.slack.webhook', $settings->slack_webhook_url);

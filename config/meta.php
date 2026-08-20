@@ -23,6 +23,12 @@ return [
     // Ad account id — with or without the "act_" prefix; normalized in the client.
     'ad_account_id' => env('META_AD_ACCOUNT_ID'),
 
+    // App credentials. The secret lets the client send an appsecret_proof, which
+    // Meta expects for server-side calls and which resolves "(#200) Provide
+    // valid app ID" for apps in Development mode.
+    'app_id' => env('META_APP_ID'),
+    'app_secret' => env('META_APP_SECRET'),
+
     'base_url' => env('META_GRAPH_URL', 'https://graph.facebook.com'),
     'version' => env('META_GRAPH_VERSION', 'v21.0'),
 

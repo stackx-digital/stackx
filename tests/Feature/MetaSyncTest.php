@@ -119,6 +119,29 @@ class MetaSyncTest extends TestCase
         Http::assertSent(fn ($request) => str_contains($request->url(), '/act_123456789/insights'));
     }
 
+    public function test_appsecret_proof_is_sent_when_app_secret_is_set(): void
+    {
+        $this->connect();
+        Config::set('meta.app_secret', 'shhh-secret');
+        $this->fakeInsights([]);
+
+        app(MetaSync::class)->sync();
+
+        $expected = hash_hmac('sha256', 'test-token', 'shhh-secret');
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'appsecret_proof='.$expected));
+    }
+
+    public function test_no_appsecret_proof_without_app_secret(): void
+    {
+        $this->connect();
+        Config::set('meta.app_secret', null);
+        $this->fakeInsights([]);
+
+        app(MetaSync::class)->sync();
+
+        Http::assertSent(fn ($request) => ! str_contains($request->url(), 'appsecret_proof'));
+    }
+
     public function test_sync_throws_when_not_connected(): void
     {
         Config::set('meta.token', null);
