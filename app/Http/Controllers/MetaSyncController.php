@@ -13,6 +13,15 @@ use Illuminate\Http\RedirectResponse;
  */
 class MetaSyncController extends Controller
 {
+    /**
+     * On-demand lookback, kept short so the request finishes well inside the
+     * web server's gateway timeout — a 30-day, ad-level, daily pull can page
+     * through hundreds of rows and blow past it. The scheduled meta:sync
+     * command (a CLI process, no gateway involved) still pulls the full
+     * config('meta.lookback_days') window every night.
+     */
+    private const ON_DEMAND_LOOKBACK_DAYS = 3;
+
     public function store(MetaSync $sync): RedirectResponse
     {
         if (! $sync->enabled()) {
@@ -21,14 +30,15 @@ class MetaSyncController extends Controller
         }
 
         try {
-            $result = $sync->sync();
+            $result = $sync->sync(self::ON_DEMAND_LOOKBACK_DAYS);
         } catch (MetaException $e) {
             return redirect()->back(fallback: route('analytics'))
                 ->with('status', 'Meta sync failed — '.$e->getMessage());
         }
 
         return redirect()->route('analytics')->with('status', sprintf(
-            'Synced from Meta — %d ads (%d new), %d daily metrics written. Recompute scores to update the report.',
+            'Synced from Meta (last %d days) — %d ads (%d new), %d daily metrics written. Recompute scores to update the report. The full history syncs automatically every night.',
+            self::ON_DEMAND_LOOKBACK_DAYS,
             $result->adsCreated + $result->adsMatched,
             $result->adsCreated,
             $result->metricsCreated + $result->metricsUpdated,

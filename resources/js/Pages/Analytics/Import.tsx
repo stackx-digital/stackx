@@ -97,7 +97,7 @@ function MetaSyncCard({ connected }: { connected: boolean }) {
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                     {connected
-                        ? "Pull the last 30 days of ad-level performance straight from your Meta ad account."
+                        ? "Pull the last 3 days of ad-level performance now — a quick check that stays well within the page's request limit. The full 30-day history syncs automatically every night."
                         : "Connect a Meta System User token and ad account id in Settings to enable live sync."}
                 </p>
             </div>
