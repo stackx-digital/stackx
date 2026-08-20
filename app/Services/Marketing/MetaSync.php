@@ -67,6 +67,36 @@ class MetaSync
         $combined->metricsCreated += $result->metricsCreated;
         $combined->metricsUpdated += $result->metricsUpdated;
         $combined->rowsSkipped += $result->rowsSkipped;
+
+        $this->syncThumbnails($account, $accountId);
+    }
+
+    /**
+     * Best-effort creative thumbnails for this account's ads. A failure here
+     * (rate limit, transient error, missing permission) must never break the
+     * metrics sync — the report is still useful without pictures.
+     */
+    private function syncThumbnails(AdAccount $account, string $accountId): void
+    {
+        try {
+            $thumbnails = $this->client->creativeThumbnails($accountId);
+        } catch (MetaException) {
+            return;
+        }
+
+        if ($thumbnails === []) {
+            return;
+        }
+
+        $account->ads()
+            ->whereIn('meta_ad_id', array_keys($thumbnails))
+            ->get()
+            ->each(function ($ad) use ($thumbnails) {
+                $url = $thumbnails[$ad->meta_ad_id] ?? null;
+                if ($url !== null && $ad->thumbnail_url !== $url) {
+                    $ad->update(['thumbnail_url' => $url]);
+                }
+            });
     }
 
     /** @return array<string, string> canonical field => synthetic header */

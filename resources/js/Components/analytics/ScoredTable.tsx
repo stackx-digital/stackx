@@ -5,6 +5,7 @@ import { ActionBadge } from "@/Components/ActionBadge";
 import { ScoreMeter } from "@/Components/ScoreMeter";
 import { cn, formatRM } from "@/lib/utils";
 
+import { CreativeThumb } from "./CreativeThumb";
 import { type AdRow } from "./types";
 
 type SortKey =
@@ -103,16 +104,24 @@ export function ScoredTable({
                                 className="cursor-pointer border-b border-hairline/50 last:border-0 hover:bg-ink/40"
                             >
                                 <td className="px-4 py-3">
-                                    <div className="font-medium text-slate-100">
-                                        {ad.name}
-                                    </div>
-                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                                        <span>{ad.account}</span>
-                                        {ad.tags?.format && (
-                                            <span className="rounded bg-ink/60 px-1 text-[10px] text-neutral">
-                                                {ad.tags.format}
-                                            </span>
-                                        )}
+                                    <div className="flex items-center gap-3">
+                                        <CreativeThumb
+                                            src={ad.thumbnailUrl}
+                                            alt={ad.name}
+                                        />
+                                        <div className="min-w-0">
+                                            <div className="truncate font-medium text-slate-100">
+                                                {ad.name}
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                                <span>{ad.account}</span>
+                                                {ad.tags?.format && (
+                                                    <span className="rounded bg-ink/60 px-1 text-[10px] text-neutral">
+                                                        {ad.tags.format}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td className="tabular px-4 py-3 text-right text-slate-200">

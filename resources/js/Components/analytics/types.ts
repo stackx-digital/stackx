@@ -19,6 +19,7 @@ export interface AdRow {
     name: string;
     account: string | null;
     status: string | null;
+    thumbnailUrl: string | null;
     spend: number | null;
     impressions: number | null;
     roas: number | null;
@@ -42,7 +43,13 @@ export interface Summary {
 }
 
 export interface AdDetail {
-    ad: { id: number; name: string; account: string | null; status: string | null };
+    ad: {
+        id: number;
+        name: string;
+        account: string | null;
+        status: string | null;
+        thumbnailUrl: string | null;
+    };
     aggregate: {
         spend: number;
         impressions: number;

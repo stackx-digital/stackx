@@ -156,6 +156,68 @@ class MetaMarketingClient
         return $insights;
     }
 
+    /**
+     * Creative thumbnails for every ad in an account, keyed by ad id. Prefers
+     * the full creative image over the small 64x64 thumbnail when Meta returns
+     * one (video ads only get a thumbnail — a frame capture). Best-effort: a
+     * failure here shouldn't break the insights sync, so callers may ignore it.
+     *
+     * @return array<string, string> ad_id => image url
+     *
+     * @throws MetaException
+     */
+    public function creativeThumbnails(string $accountId): array
+    {
+        $base = rtrim((string) config('meta.base_url'), '/');
+        $version = config('meta.version');
+
+        $url = "{$base}/{$version}/{$accountId}/ads";
+        $params = [
+            'fields' => 'id,creative{thumbnail_url,image_url}',
+            'limit' => (int) config('meta.page_limit', 200),
+            'access_token' => $this->token(),
+        ];
+
+        if (($proof = $this->appSecretProof()) !== null) {
+            $params['appsecret_proof'] = $proof;
+        }
+
+        $thumbnails = [];
+        $maxPages = (int) config('meta.max_pages', 25);
+
+        for ($page = 0; $page < $maxPages; $page++) {
+            $response = Http::timeout((int) config('meta.timeout', 60))->get($url, $params);
+
+            if ($response->failed()) {
+                $message = $response->json('error.message') ?? 'request failed';
+                throw new MetaException("Meta API error ({$accountId}): {$message}");
+            }
+
+            foreach ((array) $response->json('data', []) as $node) {
+                $id = $node['id'] ?? null;
+                $creative = (array) ($node['creative'] ?? []);
+                $image = $creative['image_url'] ?? $creative['thumbnail_url'] ?? null;
+
+                if ($id !== null && $image !== null) {
+                    $thumbnails[(string) $id] = (string) $image;
+                }
+            }
+
+            $next = $response->json('paging.next');
+            if (! is_string($next) || $next === '') {
+                break;
+            }
+
+            if (($proof = $this->appSecretProof()) !== null && ! str_contains($next, 'appsecret_proof=')) {
+                $next .= '&appsecret_proof='.$proof;
+            }
+            $url = $next;
+            $params = [];
+        }
+
+        return $thumbnails;
+    }
+
     /** Map a day count to Meta's nearest date_preset bucket. */
     private function datePreset(int $days): string
     {

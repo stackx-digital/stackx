@@ -6,6 +6,7 @@ import { ActionBadge } from "@/Components/ActionBadge";
 import { ScoreMeter } from "@/Components/ScoreMeter";
 import { formatRM } from "@/lib/utils";
 
+import { CreativeThumb } from "./CreativeThumb";
 import { InferredBadge, InferredTags } from "./InferredTags";
 import { Sparkline } from "./Sparkline";
 import { type AdDetail } from "./types";
@@ -56,14 +57,23 @@ export function AdDetailDrawer({
                 className="absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l border-hairline bg-panel shadow-xl"
             >
                 <header className="flex items-start justify-between gap-3 border-b border-hairline p-5">
-                    <div className="min-w-0">
-                        <h2 className="truncate font-display text-base font-semibold text-slate-100">
-                            {detail?.ad.name ?? "Loading…"}
-                        </h2>
-                        <p className="text-xs text-muted-foreground">
-                            {detail?.ad.account}
-                            {detail?.ad.status ? ` · ${detail.ad.status}` : ""}
-                        </p>
+                    <div className="flex min-w-0 items-center gap-3">
+                        {detail && (
+                            <CreativeThumb
+                                src={detail.ad.thumbnailUrl}
+                                alt={detail.ad.name}
+                                size="lg"
+                            />
+                        )}
+                        <div className="min-w-0">
+                            <h2 className="truncate font-display text-base font-semibold text-slate-100">
+                                {detail?.ad.name ?? "Loading…"}
+                            </h2>
+                            <p className="text-xs text-muted-foreground">
+                                {detail?.ad.account}
+                                {detail?.ad.status ? ` · ${detail.ad.status}` : ""}
+                            </p>
+                        </div>
                     </div>
                     <button
                         onClick={onClose}

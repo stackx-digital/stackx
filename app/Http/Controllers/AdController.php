@@ -37,6 +37,7 @@ class AdController extends Controller
                 'name' => $ad->name,
                 'account' => $ad->adAccount?->name,
                 'status' => $ad->status,
+                'thumbnailUrl' => $ad->thumbnail_url,
             ],
             'aggregate' => [
                 'spend' => $agg->spend,

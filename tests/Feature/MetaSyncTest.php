@@ -72,6 +72,44 @@ class MetaSyncTest extends TestCase
         $this->assertEquals(0.9, $metric->ctr_link);
     }
 
+    public function test_sync_pulls_creative_thumbnails_for_synced_ads(): void
+    {
+        $this->connect();
+
+        Http::fake([
+            'graph.facebook.com/*/insights*' => Http::response(['data' => [[
+                'ad_id' => '111', 'ad_name' => 'Raya Sale', 'date_start' => '2026-08-01', 'spend' => '10',
+            ]]]),
+            'graph.facebook.com/*/ads*' => Http::response(['data' => [[
+                'id' => '111',
+                'creative' => ['thumbnail_url' => 'https://scontent.xx/thumb.jpg', 'image_url' => 'https://scontent.xx/full.jpg'],
+            ]]]),
+        ]);
+
+        app(MetaSync::class)->sync();
+
+        $ad = Ad::where('meta_ad_id', '111')->firstOrFail();
+        // Prefers the full creative image over the small thumbnail.
+        $this->assertSame('https://scontent.xx/full.jpg', $ad->thumbnail_url);
+    }
+
+    public function test_thumbnail_fetch_failure_does_not_break_the_metrics_sync(): void
+    {
+        $this->connect();
+
+        Http::fake([
+            'graph.facebook.com/*/insights*' => Http::response(['data' => [[
+                'ad_id' => '111', 'ad_name' => 'Raya Sale', 'date_start' => '2026-08-01', 'spend' => '10',
+            ]]]),
+            'graph.facebook.com/*/ads*' => Http::response(['error' => ['message' => 'rate limited']], 400),
+        ]);
+
+        $result = app(MetaSync::class)->sync();
+
+        $this->assertSame(1, $result->adsCreated);
+        $this->assertNull(Ad::where('meta_ad_id', '111')->firstOrFail()->thumbnail_url);
+    }
+
     public function test_sync_handles_multiple_ad_accounts(): void
     {
         Config::set('meta.token', 'test-token');
@@ -84,6 +122,8 @@ class MetaSyncTest extends TestCase
             'graph.facebook.com/*act_222/insights*' => Http::response(['data' => [[
                 'ad_id' => 'b1', 'ad_name' => 'Client B ad', 'date_start' => '2026-08-01', 'spend' => '20',
             ]]]),
+            // Creative thumbnail lookups — no thumbnails needed for this test.
+            'graph.facebook.com/*/ads*' => Http::response(['data' => []]),
         ]);
 
         $result = app(MetaSync::class)->sync();

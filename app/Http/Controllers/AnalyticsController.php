@@ -58,6 +58,7 @@ class AnalyticsController extends Controller
             'name' => $ad->name,
             'account' => $ad->adAccount?->name,
             'status' => $ad->status,
+            'thumbnailUrl' => $ad->thumbnail_url,
             'spend' => $agg?->spend,
             'impressions' => $agg?->impressions,
             'roas' => $agg && $agg->roas !== null ? round($agg->roas, 2) : null,
