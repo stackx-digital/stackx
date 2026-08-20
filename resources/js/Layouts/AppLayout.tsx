@@ -1,6 +1,6 @@
 import { Link, usePage } from "@inertiajs/react";
-import { Rocket, X } from "lucide-react";
-import { type PropsWithChildren } from "react";
+import { Info, Rocket, X } from "lucide-react";
+import { type PropsWithChildren, useEffect, useState } from "react";
 
 import { Sidebar } from "@/Components/shell/Sidebar";
 import { Topbar } from "@/Components/shell/Topbar";
@@ -8,11 +8,12 @@ import { Topbar } from "@/Components/shell/Topbar";
 /**
  * Authenticated cockpit shell. Access is gated server-side (auth + verified
  * middleware, scoped to the user's org); this just lays out the sidebar,
- * topbar, and page. Shows a "finish setup" banner until onboarding is done.
+ * topbar, and page. Shows a "finish setup" banner until onboarding is done, and
+ * surfaces flash messages (e.g. sync results and errors) app-wide.
  */
 export default function AppLayout({ children }: PropsWithChildren) {
     const { props, url } = usePage();
-    const { auth, onboarding } = props;
+    const { auth, onboarding, flash } = props;
 
     const showSetup = !onboarding?.completed && !url.startsWith("/welcome");
 
@@ -22,10 +23,44 @@ export default function AppLayout({ children }: PropsWithChildren) {
             <div className="flex min-w-0 flex-1 flex-col">
                 <Topbar email={auth.user?.email ?? null} />
                 {showSetup && <SetupBanner />}
+                <FlashBanner status={flash?.status ?? null} />
                 <main className="flex-1 overflow-y-auto p-5 md:p-8">
                     {children}
                 </main>
             </div>
+        </div>
+    );
+}
+
+function FlashBanner({ status }: { status: string | null }) {
+    const [shown, setShown] = useState<string | null>(status);
+
+    // Re-show whenever a new flash message arrives.
+    useEffect(() => setShown(status), [status]);
+
+    if (!shown) return null;
+
+    const isError = /fail|error|not connected|did not|expired|invalid/i.test(
+        shown,
+    );
+
+    return (
+        <div
+            className={`flex items-start gap-3 border-b px-5 py-2.5 text-sm ${
+                isError
+                    ? "border-cut/30 bg-cut/10 text-cut"
+                    : "border-winner/30 bg-winner/10 text-winner"
+            }`}
+        >
+            <Info className="mt-0.5 size-4 shrink-0" />
+            <span className="flex-1">{shown}</span>
+            <button
+                onClick={() => setShown(null)}
+                aria-label="Dismiss"
+                className="rounded p-0.5 hover:opacity-70"
+            >
+                <X className="size-4" />
+            </button>
         </div>
     );
 }
