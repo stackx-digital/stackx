@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 /**
  * Thin client over the Meta Marketing API insights endpoint. Reads ad-level,
- * daily creative performance for one ad account. Credentials come from
+ * daily creative performance for one or more ad accounts. Credentials come from
  * config('meta') — overlaid per tenant by ApplyTenantSettings.
  */
 class MetaMarketingClient
@@ -21,35 +21,46 @@ class MetaMarketingClient
 
     public function enabled(): bool
     {
-        return filled(config('meta.token')) && filled(config('meta.ad_account_id'));
-    }
-
-    /** Normalize "123" or "act_123" to the "act_123" the API expects. */
-    public function accountId(): string
-    {
-        $id = trim((string) config('meta.ad_account_id'));
-
-        return Str::startsWith($id, 'act_') ? $id : 'act_'.$id;
+        return filled(config('meta.token')) && $this->accountIds() !== [];
     }
 
     /**
-     * Fetch ad-level daily insights for the last $lookbackDays.
+     * Every configured ad account, normalized to "act_…". Accepts a single id
+     * or several separated by comma / newline / whitespace, so an agency can
+     * connect all of its client accounts.
+     *
+     * @return array<int, string>
+     */
+    public function accountIds(): array
+    {
+        $raw = (string) config('meta.ad_account_id');
+
+        return collect(preg_split('/[\s,]+/', $raw, flags: PREG_SPLIT_NO_EMPTY) ?: [])
+            ->map(fn ($id) => Str::startsWith($id, 'act_') ? $id : 'act_'.$id)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Fetch ad-level daily insights for one ad account over the last
+     * $lookbackDays.
      *
      * @return array<int, MetaInsight>
      *
      * @throws MetaException
      */
-    public function insights(?int $lookbackDays = null): array
+    public function insights(string $accountId, ?int $lookbackDays = null): array
     {
-        if (! $this->enabled()) {
-            throw new MetaException('Meta is not connected — add a System User token and ad account id in Settings.');
+        if (filled(config('meta.token')) === false) {
+            throw new MetaException('Meta is not connected — add a System User token in Settings.');
         }
 
         $days = $lookbackDays ?? (int) config('meta.lookback_days', 30);
         $base = rtrim((string) config('meta.base_url'), '/');
         $version = config('meta.version');
 
-        $url = "{$base}/{$version}/{$this->accountId()}/insights";
+        $url = "{$base}/{$version}/{$accountId}/insights";
         $params = [
             'level' => 'ad',
             'time_increment' => 1,
@@ -67,7 +78,7 @@ class MetaMarketingClient
 
             if ($response->failed()) {
                 $message = $response->json('error.message') ?? 'request failed';
-                throw new MetaException("Meta API error: {$message}");
+                throw new MetaException("Meta API error ({$accountId}): {$message}");
             }
 
             foreach ((array) $response->json('data', []) as $node) {
@@ -97,7 +108,6 @@ class MetaMarketingClient
             $days <= 7 => 'last_7d',
             $days <= 14 => 'last_14d',
             $days <= 30 => 'last_30d',
-            $days <= 90 => 'last_90d',
             default => 'last_90d',
         };
     }

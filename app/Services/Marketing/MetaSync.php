@@ -12,7 +12,7 @@ use App\Services\Ingest\ParsedCsv;
  * Pulls live ad-level daily insights from the Meta Marketing API and upserts
  * them through the same importer the CSV path uses — so live data and imported
  * data are identical in shape and the scoring engine treats them the same.
- * Idempotent: re-running updates in place.
+ * Syncs every connected ad account (an agency can wire up many); idempotent.
  */
 class MetaSync
 {
@@ -27,36 +27,56 @@ class MetaSync
     }
 
     /**
+     * Sync all connected ad accounts. Returns a combined result across them.
+     *
      * @throws MetaException
      */
     public function sync(?int $lookbackDays = null): ImportResult
     {
-        $insights = $this->client->insights($lookbackDays);
+        $accounts = $this->client->accountIds();
 
+        if ($accounts === []) {
+            throw new MetaException('No Meta ad account id set — add one in Settings.');
+        }
+
+        $combined = new ImportResult;
+
+        foreach ($accounts as $accountId) {
+            $this->syncAccount($accountId, $lookbackDays, $combined);
+        }
+
+        return $combined;
+    }
+
+    private function syncAccount(string $accountId, ?int $lookbackDays, ImportResult $combined): void
+    {
         $rows = [];
-        foreach ($insights as $insight) {
+        foreach ($this->client->insights($accountId, $lookbackDays) as $insight) {
             $rows[] = $insight->toRow();
         }
 
-        $account = $this->resolveAccount();
+        $account = AdAccount::updateOrCreate(
+            ['meta_ad_account_id' => $accountId],
+            ['name' => 'Meta — '.$accountId, 'currency' => 'MYR'],
+        );
 
-        // Build a ParsedCsv so we can reuse the CSV importer verbatim.
+        $result = $this->importer->import($account, new ParsedCsv($rows, $this->mapping(), []));
+
+        $combined->adsCreated += $result->adsCreated;
+        $combined->adsMatched += $result->adsMatched;
+        $combined->metricsCreated += $result->metricsCreated;
+        $combined->metricsUpdated += $result->metricsUpdated;
+        $combined->rowsSkipped += $result->rowsSkipped;
+    }
+
+    /** @return array<string, string> canonical field => synthetic header */
+    private function mapping(): array
+    {
         $mapping = [];
         foreach (array_merge(['ad_name', 'meta_ad_id', 'date'], MetaHeaderMap::METRIC_FIELDS) as $field) {
             $mapping[$field] = 'meta:'.$field;
         }
 
-        return $this->importer->import($account, new ParsedCsv($rows, $mapping, []));
-    }
-
-    /** One stable "Meta — {account}" ad account per tenant, keyed by account id. */
-    private function resolveAccount(): AdAccount
-    {
-        $accountId = $this->client->accountId();
-
-        return AdAccount::updateOrCreate(
-            ['meta_ad_account_id' => $accountId],
-            ['name' => 'Meta — '.$accountId, 'currency' => 'MYR'],
-        );
+        return $mapping;
     }
 }

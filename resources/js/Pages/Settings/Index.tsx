@@ -224,8 +224,9 @@ export default function SettingsIndex({
                         title="Meta Ads — live performance sync"
                         blurb="Pull your own ad account's daily creative performance straight from the Meta Marketing API. Needs a System User token with ads_read and your ad account id."
                     >
-                        <Row label="Ad account ID">
-                            <input
+                        <Row label="Ad account ID(s)">
+                            <textarea
+                                rows={2}
                                 value={data.meta_ad_account_id}
                                 onChange={(e) =>
                                     setData(
@@ -233,9 +234,14 @@ export default function SettingsIndex({
                                         e.target.value,
                                     )
                                 }
-                                placeholder="act_123456789"
+                                placeholder="act_123456789, act_987654321"
                                 className={inputClass}
                             />
+                            <p className="mt-1 text-[11px] text-muted-foreground">
+                                One or many — separate multiple accounts with a
+                                comma or new line. Each syncs into its own
+                                account.
+                            </p>
                         </Row>
                         <SecretRow
                             label="System User token"

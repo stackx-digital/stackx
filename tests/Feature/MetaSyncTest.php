@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Ad;
+use App\Models\AdAccount;
 use App\Models\AdMetric;
 use App\Models\Organization;
 use App\Models\User;
@@ -69,6 +70,28 @@ class MetaSyncTest extends TestCase
         $this->assertEquals(7.53, $metric->cost_per_result);
         $this->assertEquals(500, $metric->thruplays);
         $this->assertEquals(0.9, $metric->ctr_link);
+    }
+
+    public function test_sync_handles_multiple_ad_accounts(): void
+    {
+        Config::set('meta.token', 'test-token');
+        Config::set('meta.ad_account_id', 'act_111, act_222');
+
+        Http::fake([
+            'graph.facebook.com/*act_111/insights*' => Http::response(['data' => [[
+                'ad_id' => 'a1', 'ad_name' => 'Client A ad', 'date_start' => '2026-08-01', 'spend' => '10',
+            ]]]),
+            'graph.facebook.com/*act_222/insights*' => Http::response(['data' => [[
+                'ad_id' => 'b1', 'ad_name' => 'Client B ad', 'date_start' => '2026-08-01', 'spend' => '20',
+            ]]]),
+        ]);
+
+        $result = app(MetaSync::class)->sync();
+
+        $this->assertSame(2, $result->adsCreated);
+        $this->assertSame(2, AdAccount::whereNotNull('meta_ad_account_id')->count());
+        $this->assertTrue(Ad::where('meta_ad_id', 'a1')->exists());
+        $this->assertTrue(Ad::where('meta_ad_id', 'b1')->exists());
     }
 
     public function test_sync_is_idempotent(): void

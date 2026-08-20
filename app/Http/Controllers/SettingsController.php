@@ -60,7 +60,7 @@ class SettingsController extends Controller
             'anthropic_model' => ['nullable', 'string', 'max:120'],
             'openai_model' => ['nullable', 'string', 'max:120'],
             'embedding_provider' => ['nullable', 'in:openai,voyage'],
-            'meta_ad_account_id' => ['nullable', 'string', 'max:64'],
+            'meta_ad_account_id' => ['nullable', 'string', 'max:1000'],
 
             'anthropic_api_key' => ['nullable', 'string', 'max:300'],
             'openai_api_key' => ['nullable', 'string', 'max:300'],
