@@ -31,6 +31,22 @@ class MetaMarketingClient
     }
 
     /**
+     * A non-secret fingerprint of the token in use (first 4 + last 4 + length),
+     * so a failing-but-valid-looking token can be traced to the exact value the
+     * app sent — without exposing the token itself.
+     */
+    private function fingerprint(): string
+    {
+        $t = $this->token();
+
+        if ($t === '') {
+            return 'EMPTY';
+        }
+
+        return substr($t, 0, 4).'…'.substr($t, -4).' ('.strlen($t).' chars)';
+    }
+
+    /**
      * Every configured ad account, normalized to "act_…". Accepts a single id
      * or several separated by comma / newline / whitespace, so an agency can
      * connect all of its client accounts.
@@ -83,8 +99,16 @@ class MetaMarketingClient
             $response = Http::timeout((int) config('meta.timeout', 60))->get($url, $params);
 
             if ($response->failed()) {
-                $message = $response->json('error.message') ?? 'request failed';
-                throw new MetaException("Meta API error ({$accountId}): {$message}");
+                $error = (array) $response->json('error', []);
+                $message = $error['message'] ?? 'request failed';
+                $subcode = isset($error['error_subcode']) ? " subcode {$error['error_subcode']}" : '';
+
+                // Diagnostic tail: which token/version the app actually used, so
+                // a valid-looking token that still fails can be traced.
+                throw new MetaException(sprintf(
+                    'Meta API error (%s): %s%s · using token %s on %s',
+                    $accountId, $message, $subcode, $this->fingerprint(), $version,
+                ));
             }
 
             foreach ((array) $response->json('data', []) as $node) {
