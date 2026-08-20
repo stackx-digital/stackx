@@ -1,14 +1,24 @@
 import { Head, Link, router, usePage } from "@inertiajs/react";
-import { CheckCircle2, Upload, Sparkles, Gauge, Wand2 } from "lucide-react";
+import {
+    CheckCircle2,
+    Upload,
+    Sparkles,
+    Gauge,
+    Wand2,
+    LayoutGrid,
+    Table2,
+} from "lucide-react";
 import { useState } from "react";
 
 import { AdDetailDrawer } from "@/Components/analytics/AdDetailDrawer";
+import { CreativeGrid } from "@/Components/analytics/CreativeGrid";
 import { ScoredTable } from "@/Components/analytics/ScoredTable";
 import { SummaryStrip } from "@/Components/analytics/SummaryStrip";
 import { type AdRow, type Summary } from "@/Components/analytics/types";
 import { WinnersLosers } from "@/Components/analytics/WinnersLosers";
 import { Button, buttonVariants } from "@/Components/ui/Button";
 import AppLayout from "@/Layouts/AppLayout";
+import { cn } from "@/lib/utils";
 
 /**
  * P1 Creative Analytics report (M4): account summary, winners/losers, a
@@ -24,6 +34,7 @@ export default function AnalyticsIndex({
 }) {
     const { flash } = usePage().props;
     const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [view, setView] = useState<"grid" | "table">("grid");
     const hasData = summary.adCount > 0;
 
     return (
@@ -85,7 +96,29 @@ export default function AnalyticsIndex({
                     <>
                         <SummaryStrip summary={summary} />
                         <WinnersLosers ads={ads} onSelect={setSelectedId} />
-                        <ScoredTable ads={ads} onSelect={setSelectedId} />
+
+                        <div className="mb-3 flex justify-end">
+                            <div className="inline-flex rounded-md border border-hairline bg-panel p-0.5">
+                                <ViewButton
+                                    icon={LayoutGrid}
+                                    active={view === "grid"}
+                                    onClick={() => setView("grid")}
+                                    label="Grid"
+                                />
+                                <ViewButton
+                                    icon={Table2}
+                                    active={view === "table"}
+                                    onClick={() => setView("table")}
+                                    label="Table"
+                                />
+                            </div>
+                        </div>
+
+                        {view === "grid" ? (
+                            <CreativeGrid ads={ads} onSelect={setSelectedId} />
+                        ) : (
+                            <ScoredTable ads={ads} onSelect={setSelectedId} />
+                        )}
                     </>
                 )}
             </div>
@@ -95,6 +128,35 @@ export default function AnalyticsIndex({
                 onClose={() => setSelectedId(null)}
             />
         </AppLayout>
+    );
+}
+
+function ViewButton({
+    icon: Icon,
+    active,
+    onClick,
+    label,
+}: {
+    icon: typeof LayoutGrid;
+    active: boolean;
+    onClick: () => void;
+    label: string;
+}) {
+    return (
+        <button
+            onClick={onClick}
+            aria-label={label}
+            aria-pressed={active}
+            className={cn(
+                "flex items-center gap-1.5 rounded px-2.5 py-1.5 text-xs font-medium transition-colors",
+                active
+                    ? "bg-ink text-slate-100"
+                    : "text-muted-foreground hover:text-slate-200",
+            )}
+        >
+            <Icon className="size-3.5" />
+            {label}
+        </button>
     );
 }
 
