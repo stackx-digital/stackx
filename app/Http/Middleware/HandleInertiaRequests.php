@@ -41,6 +41,10 @@ class HandleInertiaRequests extends Middleware
             ],
             'flash' => [
                 'status' => fn () => $request->session()->get('status'),
+                // A freshly-generated API token — shown once, never persisted
+                // in plaintext (Settings/Index reads and displays it, then it's
+                // gone on the next request).
+                'apiToken' => fn () => $request->session()->get('apiToken'),
             ],
         ];
     }

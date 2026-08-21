@@ -31,6 +31,7 @@ class OrganizationSetting extends Model
         'meta_app_id',
         'meta_app_secret',
         'slack_webhook_url',
+        'api_token_hash',
     ];
 
     protected $hidden = [
@@ -42,6 +43,7 @@ class OrganizationSetting extends Model
         'meta_system_token',
         'meta_app_secret',
         'slack_webhook_url',
+        'api_token_hash',
     ];
 
     protected function casts(): array

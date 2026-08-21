@@ -4,6 +4,7 @@ use App\Http\Controllers\AdController;
 use App\Http\Controllers\AiInsightController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ApiTokenController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\BoardItemController;
 use App\Http\Controllers\CompetitorController;
@@ -98,6 +99,10 @@ Route::middleware(['auth', 'verified', 'tenant'])->group(function () {
     // Per-tenant settings — BYO API keys (Phase 2).
     Route::get('/settings', [SettingsController::class, 'edit'])->name('settings');
     Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Inbound API token — for machine-to-machine pushes (e.g. n8n).
+    Route::post('/settings/api-token', [ApiTokenController::class, 'store'])->name('settings.api-token.store');
+    Route::delete('/settings/api-token', [ApiTokenController::class, 'destroy'])->name('settings.api-token.destroy');
 
     // Onboarding — guided welcome checklist for new tenants (Phase 3).
     Route::get('/welcome', [OnboardingController::class, 'show'])->name('welcome');

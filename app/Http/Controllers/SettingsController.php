@@ -45,6 +45,7 @@ class SettingsController extends Controller
                 'configured' => collect(self::SECRETS)
                     ->mapWithKeys(fn ($k) => [$k => filled($s?->{$k})])
                     ->all(),
+                'apiTokenSet' => filled($s?->api_token_hash),
             ],
             'capabilities' => $tenant->capabilities(),
             'defaults' => [

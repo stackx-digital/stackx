@@ -1,14 +1,17 @@
-import { Head, useForm, usePage } from "@inertiajs/react";
+import { Head, router, useForm, usePage } from "@inertiajs/react";
 import {
     BrainCircuit,
     Check,
+    Copy,
     Eye,
     KeyRound,
     LineChart,
+    Plug,
     Search,
     Send,
     type LucideIcon,
 } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/Components/ui/Button";
 import AppLayout from "@/Layouts/AppLayout";
@@ -34,6 +37,7 @@ interface Props {
         metaAdAccountId: string | null;
         metaAppId: string | null;
         configured: Record<SecretKey, boolean>;
+        apiTokenSet: boolean;
     };
     capabilities: {
         ai: boolean;
@@ -364,8 +368,132 @@ export default function SettingsIndex({
                         </Button>
                     </div>
                 </form>
+
+                <ApiAccessSection tokenSet={settings.apiTokenSet} />
             </div>
         </AppLayout>
+    );
+}
+
+function ApiAccessSection({ tokenSet }: { tokenSet: boolean }) {
+    const { flash } = usePage().props;
+    const [busy, setBusy] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const freshToken = flash?.apiToken ?? null;
+
+    const generate = () => {
+        setBusy(true);
+        router.post(
+            "/settings/api-token",
+            {},
+            { preserveScroll: true, onFinish: () => setBusy(false) },
+        );
+    };
+
+    const revoke = () => {
+        setBusy(true);
+        router.delete("/settings/api-token", {
+            preserveScroll: true,
+            onFinish: () => setBusy(false),
+        });
+    };
+
+    const copy = () => {
+        if (!freshToken) return;
+        navigator.clipboard?.writeText(freshToken);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <Section
+            icon={Plug}
+            title="API access — push data in (e.g. n8n)"
+            blurb="Prefer pulling Meta data yourself on a schedule (n8n, a script, anything) and pushing it here instead of STACKx calling Meta directly? Generate a token and POST rows to /api/v1/ads/import."
+        >
+            {freshToken && (
+                <div className="rounded-md border border-amber/30 bg-amber/10 p-3">
+                    <p className="mb-2 text-xs font-medium text-amber">
+                        Copy this now — it won't be shown again.
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <code className="flex-1 overflow-x-auto whitespace-nowrap rounded bg-ink px-2.5 py-1.5 text-xs text-slate-100">
+                            {freshToken}
+                        </code>
+                        <Button type="button" size="sm" onClick={copy}>
+                            <Copy className="size-3.5" />
+                            {copied ? "Copied" : "Copy"}
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            <Row label="Token">
+                <div className="flex items-center gap-2">
+                    {tokenSet ? (
+                        <span className="inline-flex items-center gap-1 rounded-md border border-winner/30 bg-winner/10 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-winner">
+                            <Check className="size-3" /> Active
+                        </span>
+                    ) : (
+                        <span className="text-xs text-muted-foreground">
+                            No token yet
+                        </span>
+                    )}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={generate}
+                        disabled={busy}
+                    >
+                        {tokenSet ? "Regenerate" : "Generate token"}
+                    </Button>
+                    {tokenSet && (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={revoke}
+                            disabled={busy}
+                        >
+                            Revoke
+                        </Button>
+                    )}
+                </div>
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                    Regenerating replaces the old token immediately — update
+                    anywhere it's used.
+                </p>
+            </Row>
+
+            <div className="rounded-md border border-hairline bg-ink/40 p-3">
+                <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                    n8n / HTTP request
+                </p>
+                <pre className="overflow-x-auto whitespace-pre text-[11px] leading-relaxed text-slate-300">
+{`POST ${typeof window !== "undefined" ? window.location.origin : ""}/api/v1/ads/import
+Authorization: Bearer <your token>
+Content-Type: application/json
+
+{
+  "account_name": "Meta — Weekly Import",
+  "rows": [
+    {
+      "ad_name": "Ihsan Anak Umum - V4H1",
+      "meta_ad_id": "120250697711190203",
+      "date": "2026-08-19",
+      "spend": 767.61,
+      "impressions": 1505,
+      "ctr_link": 0.9,
+      "roas": 3.5,
+      "results": 20,
+      "cost_per_result": 31.48
+    }
+  ]
+}`}
+                </pre>
+            </div>
+        </Section>
     );
 }
 

@@ -17,5 +17,6 @@ export type PageProps<
     };
     flash: {
         status?: string | null;
+        apiToken?: string | null;
     };
 };

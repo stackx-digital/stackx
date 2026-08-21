@@ -97,6 +97,34 @@ connected tenant (a CLI process, so it always pulls the full
 `config('meta.lookback_days')` window). Not connected → the CSV import path
 always remains, and the feature degrades honestly.
 
+## Inbound push API (bring your own automation)
+
+Prefer pulling Meta data yourself — an n8n workflow, a cron script, anything —
+on your own schedule, and pushing it in instead of STACKx calling Meta
+directly? `/settings` → **API access** generates a Bearer token (SHA-256
+hashed at rest; the plaintext is shown once and never stored or retrievable
+again). POST rows to:
+
+```
+POST /api/v1/ads/import
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{"account_name": "Meta — Weekly Import", "rows": [
+  {"ad_name": "…", "meta_ad_id": "…", "date": "2026-08-19",
+   "spend": 767.61, "impressions": 1505, "roas": 3.5, "results": 20}
+]}
+```
+
+`EnsureApiToken` resolves the tenant from the token (stateless — no browser
+session) and scopes the request to that org; rows flow through the same
+`AdMetricsImporter` the CSV and live-Meta paths use, so idempotency and
+scoring are identical regardless of how the data arrived. Row fields match
+`MetaHeaderMap::METRIC_FIELDS` (`spend`, `impressions`, `reach`, `ctr_all`,
+`ctr_link`, `cpc`, `cpm`, `thruplays`, `video_3s`, `results`,
+`cost_per_result`, `roas`) — every field optional except an identity
+(`ad_name` and/or `meta_ad_id`).
+
 ## Per-tenant credentials (BYO keys)
 
 Each workspace enters its own credentials at **`/settings`** — Anthropic /
