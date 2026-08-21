@@ -31,7 +31,7 @@ background syncs.
 | P2 | Brand Spy — competitor Ad Library tracking | ✅ |
 | P3 | Ad Discovery — pgvector semantic search | ✅ |
 | P4 | Ad Creation — AI copy variations | ✅ |
-| P5 | Reports — shareable snapshots + weekly Slack | ✅ **all 5 pillars done** |
+| P5 | Reports — shareable snapshots | ✅ **all 5 pillars done** |
 | SaaS 1 | Public signup + email verification + per-org tenancy | ✅ |
 | SaaS 2 | Per-tenant BYO API keys (encrypted) + Settings page | ✅ |
 | SaaS 3 | Onboarding welcome checklist + finish-setup banner | ✅ |
@@ -128,18 +128,18 @@ scoring are identical regardless of how the data arrived. Row fields match
 ## Per-tenant credentials (BYO keys)
 
 Each workspace enters its own credentials at **`/settings`** — Anthropic /
-OpenAI keys + model, embedding provider (OpenAI / Voyage), Meta Ad Library
-token, and Slack webhook. They're stored **encrypted at rest** and never sent
-back to the browser (the page only shows whether each is set).
+OpenAI / Ollama keys + model, embedding provider (OpenAI / Voyage), and Meta
+Ad Library token. They're stored **encrypted at rest** and never sent back to
+the browser (the page only shows whether each is set).
 
 On every authenticated request, `ApplyTenantSettings` middleware overlays the
 tenant's stored values onto runtime `config()` (`config/ai.php`,
-`embedding.php`, `ad_library.php`, `services.php`). Every downstream service —
-`AiManager`, `EmbeddingManager`, `SlackNotifier`, `MetaAdLibraryClient` — keeps
-reading `config()` unchanged, so it transparently uses that org's keys, falling
-back to the deployment's env values when a tenant hasn't set one. Features
-degrade honestly (and the Settings page shows a live "Ready / Not set" strip)
-when no key is available.
+`embedding.php`, `ad_library.php`, `meta.php`). Every downstream service —
+`AiManager`, `EmbeddingManager`, `MetaAdLibraryClient` — keeps reading
+`config()` unchanged, so it transparently uses that org's keys, falling back
+to the deployment's env values when a tenant hasn't set one. Features degrade
+honestly (and the Settings page shows a live "Ready / Not set" strip) when no
+key is available.
 
 ## AI layer (provider-agnostic)
 

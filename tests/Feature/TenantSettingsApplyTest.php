@@ -12,8 +12,8 @@ use Tests\TestCase;
 
 /**
  * The overlay is the mechanism that makes every existing service (AiManager,
- * EmbeddingManager, SlackNotifier, MetaAdLibraryClient) use a tenant's own
- * credentials without any change to those services.
+ * EmbeddingManager, MetaAdLibraryClient) use a tenant's own credentials
+ * without any change to those services.
  */
 class TenantSettingsApplyTest extends TestCase
 {
@@ -38,7 +38,6 @@ class TenantSettingsApplyTest extends TestCase
             'anthropic_api_key' => 'tenant-anthropic',
             'openai_api_key' => 'tenant-openai',
             'meta_ad_library_token' => 'tenant-meta',
-            'slack_webhook_url' => 'https://hooks.slack.com/x',
         ]);
 
         app(TenantSettings::class)->apply();
@@ -48,7 +47,6 @@ class TenantSettingsApplyTest extends TestCase
         $this->assertSame('tenant-openai', config('embedding.providers.openai.key'));
         $this->assertSame('tenant-meta', config('ad_library.token'));
         $this->assertTrue(config('ad_library.enabled'));
-        $this->assertSame('https://hooks.slack.com/x', config('services.slack.webhook'));
     }
 
     public function test_empty_values_fall_back_to_env_defaults(): void
@@ -86,7 +84,6 @@ class TenantSettingsApplyTest extends TestCase
         Config::set('ai.providers.openai.key', null);
         Config::set('embedding.providers.openai.key', null);
         Config::set('ad_library.token', null);
-        Config::set('services.slack.webhook', null);
 
         $org = $this->org('delta');
         app(CurrentOrganization::class)->set($org->id);
@@ -101,6 +98,5 @@ class TenantSettingsApplyTest extends TestCase
         $this->assertTrue($caps['ai']);
         $this->assertFalse($caps['embedding']);
         $this->assertFalse($caps['adLibrary']);
-        $this->assertFalse($caps['slack']);
     }
 }

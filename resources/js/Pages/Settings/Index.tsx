@@ -8,7 +8,6 @@ import {
     LineChart,
     Plug,
     Search,
-    Send,
     type LucideIcon,
 } from "lucide-react";
 import { useState } from "react";
@@ -24,8 +23,7 @@ type SecretKey =
     | "voyage_api_key"
     | "meta_ad_library_token"
     | "meta_system_token"
-    | "meta_app_secret"
-    | "slack_webhook_url";
+    | "meta_app_secret";
 
 interface Props {
     settings: {
@@ -44,7 +42,6 @@ interface Props {
         embedding: boolean;
         adLibrary: boolean;
         metaSync: boolean;
-        slack: boolean;
     };
     defaults: {
         anthropicModel: string;
@@ -79,7 +76,6 @@ export default function SettingsIndex({
             meta_ad_library_token: "",
             meta_system_token: "",
             meta_app_secret: "",
-            slack_webhook_url: "",
             remove: [] as SecretKey[],
         });
 
@@ -118,7 +114,7 @@ export default function SettingsIndex({
                     </div>
                 )}
 
-                <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <Capability label="AI" on={capabilities.ai} icon={BrainCircuit} />
                     <Capability
                         label="Meta sync"
@@ -135,7 +131,6 @@ export default function SettingsIndex({
                         on={capabilities.adLibrary}
                         icon={Eye}
                     />
-                    <Capability label="Slack" on={capabilities.slack} icon={Send} />
                 </div>
 
                 <form onSubmit={submit}>
@@ -342,23 +337,6 @@ export default function SettingsIndex({
                             error={errors.meta_ad_library_token}
                             toggleRemove={toggleRemove}
                             placeholder="EAA…"
-                        />
-                    </Section>
-
-                    <Section
-                        icon={Send}
-                        title="Reports — Slack"
-                        blurb="Incoming webhook URL for weekly report summaries."
-                    >
-                        <SecretRow
-                            label="Slack webhook URL"
-                            name="slack_webhook_url"
-                            data={data}
-                            setData={setData}
-                            configured={settings.configured.slack_webhook_url}
-                            error={errors.slack_webhook_url}
-                            toggleRemove={toggleRemove}
-                            placeholder="https://hooks.slack.com/services/…"
                         />
                     </Section>
 

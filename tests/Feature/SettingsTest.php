@@ -99,15 +99,6 @@ class SettingsTest extends TestCase
         $this->assertNull(OrganizationSetting::firstOrFail()->openai_api_key);
     }
 
-    public function test_slack_webhook_must_be_a_url(): void
-    {
-        $user = $this->user();
-
-        $this->actingAs($user)->put('/settings', [
-            'slack_webhook_url' => 'not-a-url',
-        ])->assertSessionHasErrors('slack_webhook_url');
-    }
-
     public function test_a_tenant_cannot_read_another_tenants_settings(): void
     {
         $userA = $this->user();

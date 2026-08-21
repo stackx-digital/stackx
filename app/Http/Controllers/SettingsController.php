@@ -11,7 +11,7 @@ use Inertia\Response;
 
 /**
  * Per-tenant settings (SaaS Phase 2). Lets a tenant enter their own AI /
- * embedding / Meta / Slack credentials. Secrets are stored encrypted and are
+ * embedding / Meta credentials. Secrets are stored encrypted and are
  * NEVER sent back to the browser — the page only shows whether each is set.
  */
 class SettingsController extends Controller
@@ -25,7 +25,6 @@ class SettingsController extends Controller
         'meta_ad_library_token',
         'meta_system_token',
         'meta_app_secret',
-        'slack_webhook_url',
     ];
 
     public function edit(Request $request, TenantSettings $tenant): Response
@@ -76,7 +75,6 @@ class SettingsController extends Controller
             'meta_ad_library_token' => ['nullable', 'string', 'max:500'],
             'meta_system_token' => ['nullable', 'string', 'max:500'],
             'meta_app_secret' => ['nullable', 'string', 'max:255'],
-            'slack_webhook_url' => ['nullable', 'string', 'url', 'max:500'],
 
             // Explicit "remove this saved credential" toggles.
             'remove' => ['array'],

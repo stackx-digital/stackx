@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Config;
 /**
  * Bridges a tenant's stored, encrypted credentials (OrganizationSetting) onto
  * the runtime config the services already read (config/ai.php, embedding.php,
- * ad_library.php, services.php). Everything downstream — AiManager,
- * EmbeddingManager, SlackNotifier, MetaAdLibraryClient — stays untouched: it
- * keeps reading config(), which we've overlaid per request.
+ * ad_library.php). Everything downstream — AiManager, EmbeddingManager,
+ * MetaAdLibraryClient — stays untouched: it keeps reading config(), which
+ * we've overlaid per request.
  *
  * Only non-empty tenant values override the env defaults, so a tenant that
  * hasn't entered a given key inherits whatever the deployment configured (or
@@ -65,9 +65,6 @@ class TenantSettings
         $this->set('meta.ad_account_id', $settings->meta_ad_account_id);
         $this->set('meta.app_id', $settings->meta_app_id);
         $this->set('meta.app_secret', $settings->meta_app_secret);
-
-        // --- Reports Slack (config/services.php) ---
-        $this->set('services.slack.webhook', $settings->slack_webhook_url);
     }
 
     /**
@@ -94,7 +91,6 @@ class TenantSettings
             'adLibrary' => filled($s?->meta_ad_library_token) || filled(config('ad_library.token')),
             'metaSync' => (filled($s?->meta_system_token) || filled(config('meta.token')))
                 && (filled($s?->meta_ad_account_id) || filled(config('meta.ad_account_id'))),
-            'slack' => filled($s?->slack_webhook_url) || filled(config('services.slack.webhook')),
         ];
     }
 

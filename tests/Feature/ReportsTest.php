@@ -12,7 +12,6 @@ use App\Support\CurrentOrganization;
 use Database\Seeders\DemoAdsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -97,31 +96,5 @@ class ReportsTest extends TestCase
     public function test_unknown_token_404s(): void
     {
         $this->get('/r/nope-nope-nope')->assertNotFound();
-    }
-
-    public function test_slack_send_posts_when_configured(): void
-    {
-        $this->org();
-        $this->seedScored();
-        Config::set('services.slack.webhook', 'https://hooks.slack.com/services/T/B/X');
-        Http::fake(['hooks.slack.com/*' => Http::response('ok', 200)]);
-
-        $this->actingAs($this->user())->post('/reports/slack')
-            ->assertRedirect(route('reports'))
-            ->assertSessionHas('status', fn ($s) => str_contains($s, 'posted to Slack'));
-
-        Http::assertSent(fn ($request) => str_contains($request->url(), 'hooks.slack.com'));
-    }
-
-    public function test_slack_send_degrades_without_webhook(): void
-    {
-        $this->org();
-        Config::set('services.slack.webhook', null);
-        Http::fake();
-
-        $this->actingAs($this->user())->post('/reports/slack')
-            ->assertSessionHas('status', fn ($s) => str_contains($s, 'Slack not sent'));
-
-        Http::assertNothingSent();
     }
 }

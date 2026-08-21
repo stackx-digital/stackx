@@ -36,8 +36,8 @@ See [`.env.production.example`](./.env.production.example) for the full list.
    password).
 4. **Environment variables** → paste from `.env.production.example`. Required:
    `APP_KEY`, `APP_URL` (clean https), the `DB_*` set. Everything else
-   (`MAIL_*`, AI keys, Meta/Slack) is optional — AI/Meta/Slack keys are entered
-   per-tenant at `/settings`; the env values are only a fallback.
+   (`MAIL_*`, AI/Meta keys) is optional — AI/Meta keys are entered per-tenant
+   at `/settings`; the env values are only a fallback.
 5. **Build command:**
    ```bash
    composer install --no-dev --optimize-autoloader && npm ci && npm run build
@@ -47,7 +47,7 @@ See [`.env.production.example`](./.env.production.example) for the full list.
    php artisan migrate --force && php artisan optimize
    ```
 7. **Enable Worker + Scheduler** (one toggle each) — the foundation for the
-   background syncs (Meta sync, batch tagging, weekly Slack reports).
+   background syncs (Meta sync, batch tagging, alert detection).
    - Worker command: `php artisan queue:work --tries=3 --max-time=3600`
    - Scheduler: runs `php artisan schedule:run` every minute (managed).
 8. **Deploy.** HTTPS, FrankenPHP/Octane, and zero-downtime releases are handled

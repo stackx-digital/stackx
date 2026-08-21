@@ -4,7 +4,6 @@ import {
     Copy,
     ExternalLink,
     FileText,
-    Send,
     Trash2,
 } from "lucide-react";
 import { useState } from "react";
@@ -20,13 +19,7 @@ interface ReportRow {
     createdAt: string | null;
 }
 
-export default function ReportsIndex({
-    reports,
-    slackConfigured,
-}: {
-    reports: ReportRow[];
-    slackConfigured: boolean;
-}) {
+export default function ReportsIndex({ reports }: { reports: ReportRow[] }) {
     const { flash } = usePage().props;
     const [copiedId, setCopiedId] = useState<number | null>(null);
 
@@ -58,19 +51,6 @@ export default function ReportsIndex({
                         </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => router.post("/reports/slack")}
-                            disabled={!slackConfigured}
-                            title={
-                                slackConfigured
-                                    ? undefined
-                                    : "Set SLACK_WEBHOOK_URL to enable"
-                            }
-                        >
-                            <Send className="size-4" />
-                            Send to Slack
-                        </Button>
                         <Button onClick={() => router.post("/reports")}>
                             <FileText className="size-4" />
                             Create report
@@ -83,13 +63,6 @@ export default function ReportsIndex({
                         <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
                         <span className="break-all">{flash.status}</span>
                     </div>
-                )}
-
-                {!slackConfigured && (
-                    <p className="mb-4 text-xs text-muted-foreground">
-                        Weekly Slack summary is scheduled (Mondays 9am). Set{" "}
-                        <code>SLACK_WEBHOOK_URL</code> to activate it.
-                    </p>
                 )}
 
                 {reports.length === 0 ? (

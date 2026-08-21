@@ -30,7 +30,6 @@ class OrganizationSetting extends Model
         'meta_ad_account_id',
         'meta_app_id',
         'meta_app_secret',
-        'slack_webhook_url',
         'api_token_hash',
     ];
 
@@ -42,7 +41,6 @@ class OrganizationSetting extends Model
         'meta_ad_library_token',
         'meta_system_token',
         'meta_app_secret',
-        'slack_webhook_url',
         'api_token_hash',
     ];
 
@@ -56,7 +54,6 @@ class OrganizationSetting extends Model
             'meta_ad_library_token' => 'encrypted',
             'meta_system_token' => 'encrypted',
             'meta_app_secret' => 'encrypted',
-            'slack_webhook_url' => 'encrypted',
         ];
     }
 }

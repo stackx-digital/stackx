@@ -90,10 +90,9 @@ Route::middleware(['auth', 'verified', 'tenant'])->group(function () {
     Route::post('/create', [CreateController::class, 'store'])->name('create.generate');
     Route::post('/create/brief', [CreateController::class, 'brief'])->name('create.brief');
 
-    // P5 — Reports (shareable snapshots + Slack summary).
+    // P5 — Reports (shareable snapshots).
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
     Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
-    Route::post('/reports/slack', [ReportController::class, 'slack'])->name('reports.slack');
     Route::delete('/reports/{report}', [ReportController::class, 'destroy'])->name('reports.destroy');
 
     // Per-tenant settings — BYO API keys (Phase 2).

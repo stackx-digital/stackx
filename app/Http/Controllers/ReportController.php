@@ -4,19 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Report;
 use App\Services\Reporting\ReportBuilder;
-use App\Services\Reporting\SlackNotifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * P5 Reports — create shareable snapshots and post the summary to Slack. Each
- * report has a random public token (/r/{token}); deleting it revokes the link.
+ * P5 Reports — create shareable snapshots. Each report has a random public
+ * token (/r/{token}); deleting it revokes the link.
  */
 class ReportController extends Controller
 {
-    public function index(SlackNotifier $slack): Response
+    public function index(): Response
     {
         $reports = Report::with('creator')->latest()->get()->map(fn (Report $r) => [
             'id' => $r->id,
@@ -28,7 +27,6 @@ class ReportController extends Controller
 
         return Inertia::render('Reports/Index', [
             'reports' => $reports,
-            'slackConfigured' => $slack->configured(),
         ]);
     }
 
@@ -43,22 +41,6 @@ class ReportController extends Controller
 
         return redirect()->route('reports')
             ->with('status', 'Report created — shareable at '.url('/r/'.$report->token));
-    }
-
-    public function slack(Request $request, ReportBuilder $builder, SlackNotifier $slack): RedirectResponse
-    {
-        $report = Report::create([
-            'title' => 'Report — '.now()->format('d M Y, g:ia'),
-            'token' => Report::newToken(),
-            'payload' => $builder->build(),
-            'created_by' => $request->user()->id,
-        ]);
-
-        $sent = $slack->sendReport($report->payload, $report->title, url('/r/'.$report->token));
-
-        return redirect()->route('reports')->with('status', $sent
-            ? 'Report created and posted to Slack.'
-            : 'Report created. Slack not sent — set SLACK_WEBHOOK_URL.');
     }
 
     public function destroy(Report $report): RedirectResponse
