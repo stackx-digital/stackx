@@ -3,6 +3,8 @@
 Rujukan, prompt gaya dan skrip untuk menjana video animasi pendek dengan Claude.
 Semua video di sini dijana dengan kod (Python + PIL + ffmpeg), termasuk muzik, jadi tiada isu hak cipta audio.
 
+**Halaman perpustakaan (untuk telefon / web):** https://claude.ai/artifact/RN42Psn8uD9BwuhnEw5HwB (peribadi)
+
 ## Isi kandungan
 
 | Folder / fail | Isi |
