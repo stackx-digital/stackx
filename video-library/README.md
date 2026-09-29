@@ -23,6 +23,7 @@ Semua video di sini dijana dengan kod (Python + PIL + ffmpeg), termasuk muzik, j
 | Apple launch gelap + latar foto (potret) | [prompts/apple-launch-gelap.md](prompts/apple-launch-gelap.md) | `yassin_apple.py` + `yassin_apple_music.py` | Syeikh Ahmad Yassin, 30s 9:16 |
 | Apple launch cerah, warna jenama (landskap) | [prompts/apple-launch-cerah-jenama.md](prompts/apple-launch-cerah-jenama.md) | `fidyah_biru_40s.py` + `fidyah_biru_40s_music.py` | Bayar Fidyah Online, 40s |
 | Vox explainer (landskap) | [prompts/vox-explainer.md](prompts/vox-explainer.md) | `fidyah_vox_40s.py` + `fidyah_vox_40s_music.py` | Bayar Fidyah Online, 40s |
+| Voiceover ElevenLabs (skrip + nada + tetapan) | [prompts/voiceover-fidyah-elevenlabs.md](prompts/voiceover-fidyah-elevenlabs.md) | – | Bayar Fidyah 40s |
 | Templat umum (mana-mana topik) | [prompts/templat-umum.md](prompts/templat-umum.md) | – | – |
 
 ## Cara guna (Claude Code)
