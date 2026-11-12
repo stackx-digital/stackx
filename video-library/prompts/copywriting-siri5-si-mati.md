@@ -64,6 +64,22 @@ Setiap agihan dilaporkan di laman: gambar, lokasi dan jumlah penerima.
 Tunaikan fidyah arwah 👉 www.bayarfidyahonline.com
 ```
 
+### F. Ikut voiceover video (untuk versi VO 64 saat)
+```
+"Arwah ayah... ada puasa yang belum diganti." 🤍
+
+Ramadan terakhirnya, arwah sakit 15 hari. Sempat sihat semula, tapi pergi sebelum sempat qada'. Hutang puasanya masih ada.
+
+Waris boleh tunaikan fidyah bagi pihak arwah:
+🍚 15 hari × RM4 = RM60
+📜 Dari harta arwah, sebelum faraid
+✍️ Nyatakan nama arwah semasa membayar
+
+Setiap hari yang tertinggal, menjadi makanan untuk yang memerlukan.
+
+👉 www.bayarfidyahonline.com
+```
+
 ## Tajuk (Headline, ≤40 aksara)
 - Lunaskan hutang puasa arwah
 - Fidyah bagi pihak arwah: RM4/hari
