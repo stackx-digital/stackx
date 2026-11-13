@@ -51,14 +51,14 @@ Mudah, selamat dan dalam talian. Resit rasmi terus ke emel.
 
 ### Teks utama (pendek)
 ```
-Uzur dan tak mampu berpuasa? Fidyah memberi jalan untuk menunaikan tanggungjawab: RM4 sehari, bayar online dalam beberapa minit. 🤲
+Bila uzur dan tak mampu berpuasa, fidyah memberi jalan untuk menunaikan tanggungjawab: RM4 sehari, bayar online dalam beberapa minit. 🤲
 👉 bayarfidyahonline.com
 ```
 
 - **Tajuk:** Uzur? Fidyah sahaja, RM4 sehari · Fidyah untuk mak & ayah · 30 hari = RM120
 - **Penerangan:** Mudah, selamat, dalam talian
 - **CTA:** Bayar Sekarang
-- **Tajuk poster alternatif (jika ditolak Meta):** "UZUR, TAK MAMPU BERPUASA? FIDYAH SEBAGAI JALAN." → "BILA UZUR, FIDYAH MEMBERI JALAN"
+- **Tajuk poster alternatif (jika ditolak Meta):** "BILA UZUR, FIDYAH MEMBERI JALAN"
 
 ## Poster 3: Lewat qada'
 
@@ -83,7 +83,7 @@ Makin lama tangguh, makin bertambah. Qada' + fidyah, gandaan tahun dikira automa
 - **Tajuk:** Lewat qada'? Fidyah berganda · Selesaikan sebelum Ramadan · 7 hari × 3 tahun = RM84
 - **Penerangan:** Kalkulator gandaan automatik
 - **CTA:** Bayar Sekarang
-- **Tajuk poster alternatif:** "QADA' TERTANGGUH? JANGAN BIAR TERUS TERTUNDA." → "JANGAN BIAR QADA' TERUS TERTUNDA"
+- **Tajuk poster alternatif:** "JANGAN BIAR QADA' TERUS TERTUNDA"
 - Ejaan poster: "QADA" → cadang "QADA'" (dengan koma atas) supaya selari dengan laman.
 
 ## Poster 4: Teks maroon
